@@ -3,8 +3,8 @@ name: Build
 on: [push]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  # Customize the CMake build type here (MinSizeRel, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: MinSizeRel
 
 jobs:
   build:
@@ -46,8 +46,8 @@ jobs:
     - name: Copy Out Files
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: |
-        cp D:/a/Cleaner/Cleaner/build/Release/*.dll D:/out/plugins
-        cp D:/a/Cleaner/Cleaner/build/Release/*.pdb D:/out/plugins
+        cp D:/a/Cleaner/Cleaner/build/MinSizeRel/*.dll D:/out/plugins
+        cp D:/a/Cleaner/Cleaner/build/MinSizeRel/*.pdb D:/out/plugins
       shell: bash
 
     - name: Upload plugins
