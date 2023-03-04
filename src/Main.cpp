@@ -86,5 +86,4 @@ void PluginInit(){
     RemoteCall::exportAs("Cleaner", "CleanMain", []() -> void { return CleanerMain(); });
     RemoteCall::exportAs("Cleaner", "GetCurrentTPS", []() -> unsigned short { return Tick_per_second; });
 	RemoteCall::exportAs("Cleaner", "GetAverageTPS", []() -> float { return Tick_per_minute; });
-    RemoteCall::exportAs("Cleaner", "Despawn", [](Actor* entity) -> void { return Despawn(entity); });
 }
