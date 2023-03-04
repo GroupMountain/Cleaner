@@ -34,7 +34,7 @@ void CleanerMain(){
                     break;
                 }
             }
-            if (ifignore = true) {
+            if (ifignore == true) {
                 continue;
             }
             if (en->isItemActor() == true) {
@@ -247,7 +247,7 @@ void _AutoClean() {
                     break;
                 }
             }
-            if (ifignore = true) {
+            if (ifignore == true) {
                 continue;
             }
             if (en->isItemActor() == true) {
