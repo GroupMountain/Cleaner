@@ -47,14 +47,14 @@ void RegCleanCommand(){
     auto command = DynamicCommand::createCommand(Settings::cleancommand, cmdclean + endstr, CommandPermissionLevel::GameMasters, { (CommandFlagValue)0x80 }, { (CommandFlagValue)1 });
     command->addOverload();
     command->setCallback([](DynamicCommand const& command, CommandOrigin const& origin, CommandOutput& output, std::unordered_map<std::string, DynamicCommand::Result>& results) {
-        if(Settings::sendbroadcast == true){
-            Global<Level>->broadcastText(before + opclean,TextType::RAW);
+        if (Settings::sendbroadcast == true) {
+            Level::broadcastText(before + opclean, TextType::RAW);
         }
-        if(Settings::sendtoast == true){
+        if (Settings::sendtoast == true) {
             auto players = Global<Level>->getAllPlayers();
             if(players.size() >= 1){
                 for(int tg = 0; tg <= players.size()-1; tg++){
-                    players[tg]->sendToastPacket(notice,before + opclean);
+                    players[tg]->sendToastPacket(notice, before + opclean);
                 }
             }
         }
@@ -91,7 +91,6 @@ void RegDespawnCommand(){
                 ens[i]->despawn();
             }
             LoadLanguageFromJson(LanguageFile);
-            
             return output.success(ReplaceStr(despawnsuccess,"{0}",std::to_string(ens.size())));
         }
         else return output.error(notarget);

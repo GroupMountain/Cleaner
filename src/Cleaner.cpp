@@ -146,71 +146,76 @@ void CleanerMain(){
             }
         }    
         ifautoclean = true;
-        LoadLanguageFromJson(LanguageFile);
-        if(Settings::sendbroadcast == true){
-            Level::broadcastText(before + ReplaceStr(output4,"{0}",std::to_string(k)),TextType::RAW);
+        auto opt = output4;
+        ReplaceStr(opt, "{0}", std::to_string(k));
+        if (Settings::sendbroadcast == true) {
+            Level::broadcastText(before + opt, TextType::RAW);
         }
-        if(Settings::sendtoast == true){
+        if (Settings::sendtoast == true) {
             auto players = Level::getAllPlayers();
             if(players.size() >= 1){
                 for(int tg = 0; tg <= players.size()-1; tg++){
-                    players[tg]->sendToastPacket(notice,before + ReplaceStr(output4,"{0}",std::to_string(k)));
+                    players[tg]->sendToastPacket(notice,before + opt);
                 }
             }
         }
-        if(Settings::logtoconsole == true){
-            logger.info(ReplaceStr(output4,"{0}",std::to_string(k)));
+        if (Settings::logtoconsole == true) {
+            logger.info(opt);
         }
     }
     else{
-        LoadLanguageFromJson(LanguageFile);
+        auto opt = output4;
+        ReplaceStr(opt, "{0}", "0");
         if(Settings::sendbroadcast == true){
-            Level::broadcastText(before + ReplaceStr(output4,"{0}","0"),TextType::RAW);
+            Level::broadcastText(before + opt, TextType::RAW);
         }
         if(Settings::sendtoast == true){
             auto players = Level::getAllPlayers();
             if(players.size() >= 1){
                 for(int tg = 0; tg <= players.size()-1; tg++){
-                    players[tg]->sendToastPacket(notice,before + ReplaceStr(output4,"{0}","0"));
+                    players[tg]->sendToastPacket(notice,before + opt);
                 }
             }
         }
         if(Settings::logtoconsole == true){
-            logger.info(ReplaceStr(output4,"{0}","0"));
+            logger.info(opt);
         }
     }
 }
 
 void Count1(){
+    auto opt = output02;
+    ReplaceStr(opt,"{0}",std::to_string(pre2));
     if(Settings::sendbroadcast == true){
-        Level::broadcastText(before + ReplaceStr(output02,"{0}",std::to_string(pre2)),TextType::RAW);
+        Level::broadcastText(before + opt, TextType::RAW);
     }
     if(Settings::logtoconsole == true){
-        logger.info(ReplaceStr(output02,"{0}",std::to_string(pre2)));
+        logger.info(opt);
     }
     if(Settings::sendtoast == true){
         auto players = Level::getAllPlayers();
         if(players.size() >= 1){
             for(int tga = 0; tga <= players.size()-1; tga++){
-                players[tga]->sendToastPacket(notice,before + ReplaceStr(output02,"{0}",std::to_string(pre2)));
+                players[tga]->sendToastPacket(notice,before + opt);
             }
         }
     }
 }
 
 void _CleanerMain(){
-    LoadLanguageFromJson(LanguageFile);
-    if(Settings::sendbroadcast == true){
-        Level::broadcastText(before + ReplaceStr(output01,"{0}",std::to_string(pre1)),TextType::RAW);
+    auto opt = output01;
+    ReplaceStr(opt,"{0}", std::to_string(pre1));
+    if (Settings::sendbroadcast == true) {
+        Level::broadcastText(before + opt, TextType::RAW);
     }
-    if(Settings::logtoconsole == true){
-        logger.info(ReplaceStr(output01,"{0}",std::to_string(pre1)));
+    if (Settings::logtoconsole == true) {
+        logger.info(opt);
     }
-    if(Settings::sendtoast == true){
+    if (Settings::sendtoast == true) {
         auto players = Level::getAllPlayers();
         if(players.size() >= 1){
             for(int tg = 0; tg <= players.size()-1; tg++){
-                players[tg]->sendToastPacket(notice,before + ReplaceStr(output01,"{0}",std::to_string(pre1)));
+                players[tg]->sendToastPacket(notice,before + opt);
             }
         }
     }
@@ -349,18 +354,19 @@ void _AutoClean() {
         }    
         if (j >= Settings::triggercount) {
             ifautoclean = false;     
-            LoadLanguageFromJson(LanguageFile);
+            auto opt = trigger1;
+            ReplaceStr(opt,"{0}", std::to_string(j));
             if(Settings::logtoconsole == true){
-                logger.warn(ReplaceStr(trigger1,"{0}",std::to_string(j)));
+                logger.warn(opt);
             }
             if(Settings::sendtoast == true){
                 auto players = Level::getAllPlayers();
                 for(int tg = 0; tg <= players.size()-1; tg++){
-                    players[tg]->sendToastPacket(notice,before + ReplaceStr(trigger1,"{0}",std::to_string(j)));
+                    players[tg]->sendToastPacket(notice,before + opt);
                 }
             }
             if(Settings::sendbroadcast == true){
-                Level::broadcastText(before + ReplaceStr(trigger1,"{0}",std::to_string(j)),TextType::RAW);
+                Level::broadcastText(before + opt, TextType::RAW);
             } 
             _CleanerMain(); 
         }        
@@ -379,18 +385,19 @@ void AutoClean(){
 void TPSClean(){
     Schedule::repeat([]{
 		if(enabletpsclean == true && Tick_per_minute <= triggertps){
-            LoadLanguageFromJson(LanguageFile);
+            auto opt = triggertpsclean;
+            ReplaceStr(opt,"{0}", std::to_string(Tick_per_minute));
             if(Settings::logtoconsole == true){
-                logger.warn(ReplaceStr(triggertpsclean,"{0}",std::to_string(Tick_per_minute)));
+                logger.warn(opt);
             }
             if(Settings::sendtoast == true){
                 auto players = Level::getAllPlayers();
                 for(int tg = 0; tg <= players.size()-1; tg++){
-                    players[tg]->sendToastPacket(notice,before + ReplaceStr(triggertpsclean,"{0}",std::to_string(Tick_per_minute)));
+                    players[tg]->sendToastPacket(notice,before + opt);
                 }
             }
             if(Settings::sendbroadcast == true){
-                Level::broadcastText(before + ReplaceStr(triggertpsclean,"{0}",std::to_string(Tick_per_minute)),TextType::RAW);
+                Level::broadcastText(before + opt, TextType::RAW);
             } 
             _CleanerMain();
         }
