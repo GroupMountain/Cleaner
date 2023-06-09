@@ -47,13 +47,13 @@ void PluginInit(){
     cout << R"(                                                                      )" << endl;
     cout << R"(                                                                      )" << endl;
     if(GetSystemDefaultLangID() == 0x0804){
-        logger.info("当前版本 {}.{}.{} ，支持 BDS - 1.19.6x ，版本协议 {}",PLUGIN_VERSION_MAJOR,PLUGIN_VERSION_MINOR,PLUGIN_VERSION_REVISION,TARGET_BDS_PROTOCOL_VERSION);
+        logger.info("当前版本 {}.{}.{}",PLUGIN_VERSION_MAJOR,PLUGIN_VERSION_MINOR,PLUGIN_VERSION_REVISION);
         logger.info("插件作者 Tsubasa6848");
         logger.info("正在加载 Cleaner ...");
         logger.info("这个插件是免费的，如果你花钱了，请立即差评并要求RNM退钱。");
     }
     else{
-        logger.info("Current Version: {}.{}.{} , support BDS - 1.19.6x , protocal version {}",PLUGIN_VERSION_MAJOR,PLUGIN_VERSION_MINOR,PLUGIN_VERSION_REVISION,TARGET_BDS_PROTOCOL_VERSION);
+        logger.info("Current Version: {}.{}.{}",PLUGIN_VERSION_MAJOR,PLUGIN_VERSION_MINOR,PLUGIN_VERSION_REVISION);
         logger.info("Plugin Author: Tsubasa6848");
         logger.info("Loading Cleaner ...");
         logger.info("This plugin is free, and if you paid for it, you must have been scammed.");

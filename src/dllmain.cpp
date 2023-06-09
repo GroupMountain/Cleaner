@@ -41,32 +41,6 @@ void CheckEULA(){
     }
 }
 
-void CheckProtocolVersion()
-{
-
-#ifdef TARGET_BDS_PROTOCOL_VERSION
-
-    auto current_protocol = ll::getServerProtocolVersion();
-    if (TARGET_BDS_PROTOCOL_VERSION != current_protocol)
-    {
-        if(GetSystemDefaultLangID() == 0x0804){
-            logger.error(" 不兼容的BDS版本！插件兼容 BDS-1.19.6x ,版本协议: {}。\n                强制加载可能导致服务器崩溃和发生未知错误，请更换适配的插件版本或使用适配的BDS版本。",TARGET_BDS_PROTOCOL_VERSION);
-            MessageBox(NULL,TEXT("不兼容的BDS版本！\n\n请更换适配的插件版本或使用适配的BDS版本。"),TEXT("Cleaner"),MB_ICONERROR | MB_OK);
-        }
-        else{
-            logger.error("Incompatible BDS version! Plugin Cleaner is compatible with BDS-1.19.6x, protocal version: {}。\n                To avoid crash, please update this plugin or use a compatible BDS version!",TARGET_BDS_PROTOCOL_VERSION);
-            MessageBox(NULL,TEXT("Incompatible BDS version!\n\nPlease update this plugin or use a compatible BDS version."),TEXT("Cleaner"),MB_ICONERROR | MB_OK);
-        } 
-    }
-    else{
-        loadConfig();
-        loadLanguage();
-        CheckEULA();
-    }
-
-#endif
-}
-
 BOOL APIENTRY DllMain(HMODULE hModule,
                       DWORD ul_reason_for_call,
                       LPVOID lpReserved)
@@ -96,6 +70,8 @@ extern "C"
     _declspec(dllexport) void onPostInit()
     {
         std::ios::sync_with_stdio(false);
-        CheckProtocolVersion();
+        loadConfig();
+        loadLanguage();
+        CheckEULA();
     }
 }
