@@ -1,23 +1,19 @@
 #pragma once
-#include "version.h"
+#include "Plugin.h"
+#include <ll/api/command/DynamicCommand.h>
+#include <ll/api/event/EventBus.h>
+#include <ll/api/event/ListenerBase.h>
+#include <ll/api/event/command/SetupCommandEvent.h>
+#include <ll/api/plugin/NativePlugin.h>
+#include <ll/api/memory/Hook.h>
+#include <ll/api/service/Bedrock.h>
+#include <ll/api/schedule/Scheduler.h>
+#include <ll/api/schedule/Task.h>
+#include "include_mcapi.h"
 
-#define ConfigFile "plugins/Cleaner/config.json"
-#define LanguageFile "plugins/Cleaner/language.json"
+extern ll::Logger logger;
+extern void RegisterCommand(CommandRegistry &registry);
 
-#include <iostream>
-#include <llapi/LoggerAPI.h>
-#include <llapi/Global.h>
-#include <llapi/ScheduleAPI.h>
-#include <llapi/mc/Actor.hpp>
-#include <llapi/mc/ItemActor.hpp>
-#include <llapi/mc/Level.hpp>
-
-#include <stdio.h>
-#include <WinNls.h>
-
-#include <windows.h>
-#include <cstdio> 
-
-using namespace std;
-
-extern Logger logger;
+namespace Cleaner {
+    extern void CleanSchedule(int seconds, int notice_time);
+}
