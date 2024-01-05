@@ -21,7 +21,7 @@ void RegCleanCommand(CommandRegistry& registry) {
                             CommandOrigin const&                                     origin,
                             CommandOutput&                                           output,
                             std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        Cleaner::CleanTask();
+        Cleaner::CleanTask(15, 7);
     });
     DynamicCommand::setup(registry, std::move(command));
 }

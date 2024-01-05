@@ -3,17 +3,21 @@
 using namespace ll::schedule;
 using namespace ll::chrono_literals;
 
-GameTimeScheduler scheduler;
+GameTimeAsyncScheduler scheduler;
+bool                   auto_clean_triggerred = false;
 
 namespace Cleaner {
 
 bool isDeathDrop(ItemActor* itac) {
-    // Todo
+    //
     return false;
 }
 
-bool shouldIgnoreMob(Mob* mob) {
-    // Todo
+bool shouldIgnoreMob(Actor* ac) {
+    if (ac->isTame() || ac->isTrusting() || ac->getNameTag() != "") {
+        return true;
+    }
+
     return false;
 }
 
@@ -21,10 +25,6 @@ bool ShouldClean(Actor* en) {
     // Players
     if (en->isType(ActorType::Player)) {
         return false;
-    }
-    // Tag
-    if (en->hasTag("testtag")) {
-        // Todo
     }
     auto type = en->getTypeName();
     // Items
@@ -36,7 +36,6 @@ bool ShouldClean(Actor* en) {
             }
             auto itemType = itac->item().getTypeName();
             if (true) { // Todo Config WhiteList
-                return true;
                 return false;
             }
             return true;
@@ -46,14 +45,15 @@ bool ShouldClean(Actor* en) {
     // Mobs
     else if (en->hasCategory(ActorCategory::Mob)) {
         if (true) { // Todo Config Toggle
-            auto mob = (Mob*)en;
-            if (shouldIgnoreMob(mob)) {
+            if (shouldIgnoreMob(en)) {
                 return false;
             }
+            // Test
+            return true;
             if (true) { // Todo WhiteList
-                return true;
                 return false;
             }
+            return true;
         }
         return false;
     }
@@ -63,6 +63,7 @@ bool ShouldClean(Actor* en) {
             if (true) { // BlackList
                 return true;
             }
+            return false;
         }
         return false;
     }
@@ -91,24 +92,39 @@ int CountEntities() {
     return clean_count;
 }
 
-using namespace ll::schedule;
-
-using namespace ll::chrono_literals;
-
-void CleanTask() {
-    // Todo Schedule
-    logger.info("clean will in {}", 20s);
-    scheduler.add<DelayTask>(20s, [] {
+void CleanTask(int time, int announce_time) {
+    auto time_1 = std::chrono::seconds::duration(time);
+    auto time_2 = std::chrono::seconds::duration(time - announce_time);
+    logger.info("clean will in {}", time_1);
+    scheduler.add<DelayTask>(time_2, [announce_time] { logger.info("clean will in {}", announce_time); });
+    scheduler.add<DelayTask>(time_1, [] {
         auto count = ExecuteClean();
         logger.info("Successfully cleaned {} entities", count);
+        auto_clean_triggerred = false;
     });
 }
 
-void AutoCleanTask() {
-    auto_clean_task->cancel();
-    auto_clean_task = scheduler.add<RepeatTask>(1min, [] {
-        CleanTask();
+void AutoCleanTask(int seconds) {
+    auto time       = std::chrono::seconds::duration(seconds);
+    auto_clean_task = scheduler.add<RepeatTask>(time, [] { CleanTask(20, 5); });
+}
+
+void CheckCleanTask(int max_entities, float min_tps) {
+    check_clean_task = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
+        auto count = CountEntities();
+        if (!auto_clean_triggerred) {
+            if (count >= max_entities) {
+                auto_clean_triggerred = true;
+                logger.warn("Too many entities! Auto started clean task!");
+                CleanTask(20, 5);
+            } else if (TPS::getAverageTps() <= min_tps) {
+                auto_clean_triggerred = true;
+                logger.warn("TPS too low! Auto started clean task!");
+                CleanTask(20, 5);
+            }
+        }
     });
 }
+
 
 } // namespace Cleaner
