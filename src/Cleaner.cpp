@@ -104,8 +104,11 @@ void CleanTask() {
     });
 }
 
-void CountEntitiesTask() {
-    //
+void AutoCleanTask() {
+    auto_clean_task->cancel();
+    auto_clean_task = scheduler.add<RepeatTask>(1min, [] {
+        CleanTask();
+    });
 }
 
 } // namespace Cleaner
