@@ -21,25 +21,25 @@ void RegCleanCommand(CommandRegistry& registry) {
                             CommandOrigin const&                                     origin,
                             CommandOutput&                                           output,
                             std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        Cleaner::CleanSchedule(20, 5);
+        Cleaner::CleanTask();
     });
     DynamicCommand::setup(registry, std::move(command));
 }
 
-void RegReloadCommand(CommandRegistry& registry) {
-    auto command = DynamicCommand::createCommand(registry, "cleane", "Clean entities", CommandPermissionLevel::Any);
+void RegConfigCommand(CommandRegistry& registry) {
+    auto command = DynamicCommand::createCommand(registry, "cleaner", "Cleaner plugin settings", CommandPermissionLevel::Any);
     command->addOverload();
     command->setCallback([](DynamicCommand const&                                    cmd,
                             CommandOrigin const&                                     origin,
                             CommandOutput&                                           output,
                             std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        // reload command
+        // reload & config
     });
     DynamicCommand::setup(registry, std::move(command));
 }
 
 void RegDespawnCommand(CommandRegistry& registry) {
-    auto command = DynamicCommand::createCommand(registry, "cleanee", "Clean entities", CommandPermissionLevel::Any);
+    auto command = DynamicCommand::createCommand(registry, "despawn", "despawn entities", CommandPermissionLevel::Any);
     command->mandatory("target", ParamType::Actor);
     command->addOverload({"target"});
     command->addOverload();
@@ -51,11 +51,18 @@ void RegDespawnCommand(CommandRegistry& registry) {
         for (auto en : ens) {
             en->despawn();
         }
-        // despawn command
     });
     DynamicCommand::setup(registry, std::move(command));
 }
 
-void RegisterCommand(CommandRegistry &registry) {
+void RegisterCommands() {
+    auto registry = ll::service::bedrock::getCommandRegistry();
     RegCleanCommand(registry);
+    RegDespawnCommand(registry);
+}
+
+void UnregisterCommands() {
+    auto registry = ll::service::bedrock::getCommandRegistry();
+    registry->unregisterCommand("clean");
+    registry->unregisterCommand("despawn");
 }

@@ -16,7 +16,7 @@ target_include_directories(Cleaner PRIVATE
     src
 )
 target_include_directories(Cleaner PRIVATE
-    C:/Users/yang/AppData/Local/.xmake/packages/l/levilamina/0.2.2/54d4541cae36448ab8d89ba7ff29fe49/include
+    C:/Users/yang/AppData/Local/.xmake/packages/l/levilamina/0.3.0/59a288d9257e463883bf6b863a7de723/include
     C:/Users/yang/AppData/Local/.xmake/packages/c/ctre/3.8.1/6aca3e546d064397b0970026de72d808/include
     C:/Users/yang/AppData/Local/.xmake/packages/e/entt/v3.12.2/5748c075ebf044f9b53ef5be15be7e68/include
     C:/Users/yang/AppData/Local/.xmake/packages/f/fmt/10.1.1/adc308aa1dfc472ab92a30abb14e2d6f/include
@@ -53,22 +53,22 @@ if(MSVC)
 endif()
 target_link_libraries(Cleaner PRIVATE
     LeviLamina
+    bedrock_server_api
+    bedrock_server_var
     fmt
     leveldb
     snappy
     PreLoader
     SymbolProvider
-    bedrock_server_api
-    bedrock_server_var
 )
 target_link_directories(Cleaner PRIVATE
-    C:/Users/yang/AppData/Local/.xmake/packages/l/levilamina/0.2.2/54d4541cae36448ab8d89ba7ff29fe49/lib
+    C:/Users/yang/AppData/Local/.xmake/packages/l/levilamina/0.3.0/59a288d9257e463883bf6b863a7de723/lib
+    C:/Users/yang/AppData/Local/.xmake/packages/b/bdslibrary/1.20.50.03/ed5b31d060e14f9fa04590d78581d780/lib
     C:/Users/yang/AppData/Local/.xmake/packages/f/fmt/10.1.1/adc308aa1dfc472ab92a30abb14e2d6f/lib
     C:/Users/yang/AppData/Local/.xmake/packages/l/leveldb/1.23/bd4e0156f5854fe28ddb7800bcdf5a2d/lib
     C:/Users/yang/AppData/Local/.xmake/packages/s/snappy/1.1.10/849445e2a764471789906fbaf94e9a02/lib
     C:/Users/yang/AppData/Local/.xmake/packages/p/preloader/v1.4.0/e087d05f0e95498c9a4b89f94139b1cd/lib
     C:/Users/yang/AppData/Local/.xmake/packages/s/symbolprovider/v1.1.0/ca5041352577410f83705b4b2abb93f7/lib
-    C:/Users/yang/AppData/Local/.xmake/packages/b/bdslibrary/1.20.50.03/ed5b31d060e14f9fa04590d78581d780/lib
 )
 target_link_options(Cleaner PRIVATE
     /DELAYLOAD:bedrock_server.dll
