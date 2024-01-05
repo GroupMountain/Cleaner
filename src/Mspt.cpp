@@ -51,4 +51,6 @@ float getCurrentTps() { return mspt <= 50 ? 20 : (float)(1000.0 / mspt); }
 
 float getAverageTps() { return average_tps; }
 
+float getMspt() { return mspt; }
+
 } // namespace TPS

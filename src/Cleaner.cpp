@@ -112,7 +112,7 @@ void AutoCleanTask(int seconds) {
 void CheckCleanTask(int max_entities, float min_tps) {
     check_clean_task = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
         auto count = CountEntities();
-        if (!auto_clean_triggerred) {
+        if (auto_clean_triggerred == false) {
             if (count >= max_entities) {
                 auto_clean_triggerred = true;
                 logger.warn("Too many entities! Auto started clean task!");
