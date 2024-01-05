@@ -54,7 +54,7 @@ void RegCleanerCommand(CommandRegistry& registry) {
                 return output.success("mspt {}", TPS::getMspt());
             } else if (act == "clean") {
                 output.success("Clean task started!");
-                Cleaner::CleanTask(20, 5);
+                Cleaner::CleanTask(20, 5); // Config
                 return;
             } else if (act == "reload") {
                 output.success("Reloading Cleaner ...");

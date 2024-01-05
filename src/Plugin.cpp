@@ -9,7 +9,7 @@ Plugin::Plugin(ll::plugin::NativePlugin& self) : mSelf(self) {
 }
 
 bool Plugin::enable() {
-    //TPS::CaculateTPS();
+    TPS::CaculateTPS();
     RegisterCommands();
     item_despawn_time = 300;
     Cleaner::AutoCleanTask(60);
@@ -23,8 +23,6 @@ bool Plugin::enable() {
 bool Plugin::disable() {
     logger.info("Disabling Cleaner...");
     // Code for disabling the plugin goes here.
-    //auto_clean_task->cancel();
-    //check_clean_task->cancel();
     UnregisterCommands();
     logger.info("Cleaner Disabled!");
     return true;
