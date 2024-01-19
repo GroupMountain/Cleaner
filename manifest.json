@@ -1,5 +1,10 @@
 {
-    "name": "Cleaner",
-    "entry": "Cleaner.dll",
-    "type": "native"
+    "name": "${pluginName}",
+    "entry": "${pluginFile}",
+    "type": "native",
+    "dependencies": [
+        {
+            "name": "GMLIB"
+        }
+    ]
 }
