@@ -17,8 +17,8 @@ void RegVoteCommand(CommandRegistry& registry) {
 void RegCleanerCommand(CommandRegistry& registry) {
     auto command = DynamicCommand::createCommand(
         registry,
-        "cleaner",
-        "Cleaner plugin settings",
+        Config->getValue<std::string>({"Basic", "Command"}, "cleaner"),
+        Language->translate("cleaner.command.cleaner"),
         CommandPermissionLevel::GameDirectors
     );
     command->setEnum("Despawn", {"despawn"});
@@ -40,49 +40,39 @@ void RegCleanerCommand(CommandRegistry& registry) {
         if (result["despawn"].isSet && result["target"].isSet) {
             auto ens = result["target"].get<std::vector<Actor*>>();
             if (ens.size() == 0) {
-                return output.error("No matched targets found!");
+                return output.error(Language->translate("cleaner.command.error.noTarget"));
             }
             for (auto en : ens) {
                 en->despawn();
             }
-            return output.success("Successfully despawned {} entities", ens.size());
+            return output.success(Language->translate("cleaner.command.despawnSuccess", {S(ens.size())}));
         } else if (result["action"].isSet) {
             auto act = result["action"].get<std::string>();
             if (act == "tps") {
-                return output.success(
-                    "current tps {}, average tps {}",
-                    GMLIB_Level::getLevel()->getServerCurrentTps(),
-                    GMLIB_Level::getLevel()->getServerAverageTps()
-                );
+                return output.success(Language->translate(
+                    "cleaner.command.tps.output",
+                    {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
+                     S(GMLIB_Level::getLevel()->getServerAverageTps())}
+                ));
             } else if (act == "mspt") {
-                return output.success("mspt {}", GMLIB_Level::getLevel()->getServerMspt());
+                return output.success(
+                    Language->translate("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
+                );
             } else if (act == "clean") {
-                output.success("Clean task started!");
-                Cleaner::CleanTask(20, 5); // Config
+                output.success(Language->translate("cleaner.output.opClean"));
+                Cleaner::CleanTask(
+                    Config->getValue<int>({"Basic", "Notice1"}, 20),
+                    Config->getValue<int>({"Basic", "Notice2"}, 15)
+                ); // Config
                 return;
             } else if (act == "reload") {
-                output.success("Reloading Cleaner ...");
-                Cleaner::ReloadCleaner();
-                return output.success("Cleaner Reloaded!");
+                Cleaner::reloadCleaner();
+                return output.success(Language->translate("cleaner.output.reload"));
             }
         } else if (result["despawntime"].isSet && result["ticks"].isSet) {
             item_despawn_time = result["ticks"].get<int>();
-            return output.success("Successfully set deapawn time to {}", item_despawn_time);
+            return output.success(Language->translate("cleaner.command.despawntime", {S(item_despawn_time)}));
         }
-    });
-    DynamicCommand::setup(registry, std::move(command));
-}
-
-void RegDespawnCommand(CommandRegistry& registry) {
-    auto command = DynamicCommand::createCommand(registry, "despawn", "despawn entities", CommandPermissionLevel::Any);
-    command->mandatory("target", ParamType::Actor);
-    command->addOverload({"target"});
-    command->addOverload();
-    command->setCallback([](DynamicCommand const&                                    cmd,
-                            CommandOrigin const&                                     origin,
-                            CommandOutput&                                           output,
-                            std::unordered_map<std::string, DynamicCommand::Result>& result) {
-
     });
     DynamicCommand::setup(registry, std::move(command));
 }
@@ -95,6 +85,6 @@ void RegisterCommands() {
 
 void UnregisterCommands() {
     auto registry = ll::service::bedrock::getCommandRegistry();
-    registry->unregisterCommand("cleaner");
-    registry->unregisterCommand("voteclean");
+    registry->unregisterCommand(Config->getValue<std::string>({"Basic", "Command"}, "cleaner"));
+    // registry->unregisterCommand("voteclean");
 }

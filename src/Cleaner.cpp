@@ -1,7 +1,12 @@
+#include "Config.h"
 #include "Global.h"
 #include <GMLIB/Event/Entity/ItemActorSpawnEvent.h>
 #include <GMLIB/Event/Entity/MobPickupItemEvent.h>
 #include <GMLIB/Server/PlayerAPI.h>
+#include <regex>
+
+GMLIB_JsonConfig*   Config   = nullptr;
+GMLIB_JsonLanguage* Language = nullptr;
 
 using namespace ll::schedule;
 using namespace ll::chrono_literals;
@@ -11,6 +16,19 @@ ServerTimeAsyncScheduler scheduler;
 bool                     auto_clean_triggerred = false;
 
 namespace Cleaner {
+
+bool isMatch(std::string& A, std::string& B) {
+    // 如果B是正则表达式
+    if (B.find_first_of(".*+?()[]{}|^$") != std::string::npos) {
+        try {
+            std::regex regex(B);
+            return std::regex_match(A, regex);
+        } catch (...) {
+            return false;
+        }
+    }
+    return (A == B);
+}
 
 bool shouldIgnore(GMLIB_Actor* ac) {
     if (ac->isMob() || ac->isItemActor()) {
@@ -34,12 +52,17 @@ bool ShouldClean(Actor* actor) {
     auto type = en->getTypeName();
     // Items
     if (en->isItemActor()) {
-        return true;
-        if (true) { // Todo Config Toggle
-            auto itac     = (ItemActor*)en;
-            auto itemType = itac->item().getTypeName();
-            if (true) { // Todo Config WhiteList
+        if (Config->getValue<bool>({"CleanItem", "Enabled"}, false)) {
+            auto itac = (ItemActor*)en;
+            if (itac->age() <= Config->getValue<int>({"CleanItem", "ExistTicks"}, 0)) {
                 return false;
+            }
+            auto itemType  = itac->item().getTypeName();
+            auto whitelist = Config->getValue<std::vector<std::string>>({"CleanItem", "Whitelist"}, {});
+            for (auto& key : whitelist) {
+                if (isMatch(itemType, key)) {
+                    return false;
+                }
             }
             return true;
         }
@@ -47,22 +70,38 @@ bool ShouldClean(Actor* actor) {
     }
     // Mobs
     else if (en->isMob()) {
-        if (true) { // Todo Config Toggle
-            return true;
-            if (true) { // Todo WhiteList
-                return false;
+        if (Config->getValue<bool>({"CleanMobs", "Enabled"}, false)) {
+            auto blacklist = Config->getValue<std::vector<std::string>>({"CleanMobs", "Blacklist"}, {});
+            for (auto& key : blacklist) {
+                if (isMatch(type, key)) {
+                    return true;
+                }
             }
-            return true;
+            auto whitelist = Config->getValue<std::vector<std::string>>({"CleanMobs", "Whitelist"}, {});
+            for (auto& key : whitelist) {
+                if (isMatch(type, key)) {
+                    return false;
+                }
+            }
+            if (Config->getValue<bool>({"CleanMobs", "CleanMonstors"}, false)
+                && en->hasCategory(ActorCategory::Monster)) {
+                return true;
+            }
+            if (Config->getValue<bool>({"CleanMobs", "CleanPeacefulMobs"}, false)) {
+                return true;
+            }
         }
         return false;
     }
     // Others
     else {
-        if (true) {     // Todo Config Toggle
-            if (true) { // BlackList
-                return true;
+        if (Config->getValue<bool>({"CleanInanimate", "Enabled"}, false)) {
+            auto blacklist = Config->getValue<std::vector<std::string>>({"CleanInanimate", "Blacklist"}, {});
+            for (auto& key : blacklist) {
+                if (isMatch(type, key)) {
+                    return true;
+                }
             }
-            return false;
         }
         return false;
     }
@@ -94,18 +133,22 @@ int CountEntities() {
 void CleanTask(int time, int announce_time) {
     auto time_1 = std::chrono::seconds::duration(time);
     auto time_2 = std::chrono::seconds::duration(time - announce_time);
-    logger.info("clean will in {}", time_1);
-    scheduler.add<DelayTask>(time_2, [announce_time] { logger.info("clean will in {}", announce_time); });
+    logger.info(Language->translate("cleaner.output.count1", {S(time_1.count())}));
+    scheduler.add<DelayTask>(time_2, [announce_time] {
+        logger.info(Language->translate("cleaner.output.count2", {S(announce_time)}));
+    });
     scheduler.add<DelayTask>(time_1, [] {
         auto count = ExecuteClean();
-        logger.info("Successfully cleaned {} entities", count);
+        logger.info(Language->translate("cleaner.output.finish", {S(count)}));
         auto_clean_triggerred = false;
     });
 }
 
 void AutoCleanTask(int seconds) {
     auto time      = std::chrono::seconds::duration(seconds);
-    mAutoCleanTask = scheduler.add<RepeatTask>(time, [] { CleanTask(20, 5); });
+    mAutoCleanTask = scheduler.add<RepeatTask>(time, [] {
+        CleanTask(Config->getValue<int>({"Basic", "Notice1"}, 20), Config->getValue<int>({"Basic", "Notice2"}, 15));
+    });
 }
 
 void CheckCleanTask(int max_entities, float min_tps) {
@@ -114,12 +157,21 @@ void CheckCleanTask(int max_entities, float min_tps) {
         if (auto_clean_triggerred == false) {
             if (count >= max_entities) {
                 auto_clean_triggerred = true;
-                logger.warn("Too many entities! Auto started clean task!");
-                CleanTask(20, 5);
+                logger.warn(Language->translate("cleaner.output.triggerAutoCleanCount", {S(count)}));
+                CleanTask(
+                    Config->getValue<int>({"Basic", "Notice1"}, 20),
+                    Config->getValue<int>({"Basic", "Notice2"}, 15)
+                );
             } else if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
                 auto_clean_triggerred = true;
-                logger.warn("TPS too low! Auto started clean task!");
-                CleanTask(20, 5);
+                logger.warn(Language->translate(
+                    "cleaner.output.triggerAutoCleanCount",
+                    {S(GMLIB_Level::getLevel()->getServerAverageTps())}
+                ));
+                CleanTask(
+                    Config->getValue<int>({"Basic", "Notice1"}, 20),
+                    Config->getValue<int>({"Basic", "Notice2"}, 15)
+                );
             }
         }
     });
@@ -158,13 +210,39 @@ void ListenEvents() {
     );
 }
 
-void ReloadCleaner() {
+void reloadCleaner() {
+    unloadCleaner();
+    loadCleaner();
+}
+
+void loadConfig() {
+    Config = new GMLIB_JsonConfig("./plugins/Cleaner/config/config.json", defaultConfig);
+    Config->initConfig();
+    Language = new GMLIB_JsonLanguage("./plugins/Cleaner/config/language.json", defaultLanguage);
+    Language->initConfig();
+}
+
+void loadCleaner() {
+    ListenEvents();
+    RegisterCommands();
+    if (Config->getValue<bool>({"ScheduleClean", "Enabled"}, false)) {
+        Cleaner::AutoCleanTask(Config->getValue<int>({"ScheduleClean", "CleanInterval"}, 3000));
+    }
+    if (Config->getValue<bool>({"AutoCleanCount", "Enabled"}, false)
+        || Config->getValue<bool>({"AutoCleanTPS", "Enabled"}, false)) {
+        Cleaner::CheckCleanTask(
+            Config->getValue<int>({"AutoCleanCount", "TriggerCount"}, 900),
+            Config->getValue<int>({"AutoCleanTPS", "TriggerTPS"}, 15)
+        );
+    }
+}
+
+void unloadCleaner() {
     mAutoCleanTask->cancel();
     mCheckCleanTask->cancel();
     // UnregisterCommands();
-    // RegisterCommands();
-    Cleaner::AutoCleanTask(600);
-    Cleaner::CheckCleanTask(15, 8);
+    delete Config;
+    delete Language;
 }
 
 } // namespace Cleaner
