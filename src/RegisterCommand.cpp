@@ -59,12 +59,11 @@ void RegCleanerCommand(CommandRegistry& registry) {
                     Language->translate("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
                 );
             } else if (act == "clean") {
-                output.success(Language->translate("cleaner.output.opClean"));
                 Cleaner::CleanTask(
                     Config->getValue<int>({"Basic", "Notice1"}, 20),
                     Config->getValue<int>({"Basic", "Notice2"}, 15)
-                ); // Config
-                return;
+                );
+                return output.success(Language->translate("cleaner.output.opClean"));
             } else if (act == "reload") {
                 Cleaner::reloadCleaner();
                 return output.success(Language->translate("cleaner.output.reload"));
@@ -79,12 +78,12 @@ void RegCleanerCommand(CommandRegistry& registry) {
 
 void RegisterCommands() {
     auto registry = ll::service::bedrock::getCommandRegistry();
-    RegCleanerCommand(registry);
-    RegVoteCommand(registry);
+    // RegCleanerCommand(registry);
+    // RegVoteCommand(registry);
 }
 
 void UnregisterCommands() {
-    auto registry = ll::service::bedrock::getCommandRegistry();
-    registry->unregisterCommand(Config->getValue<std::string>({"Basic", "Command"}, "cleaner"));
-    // registry->unregisterCommand("voteclean");
+    // auto registry = ll::service::bedrock::getCommandRegistry();
+    // registry->unregisterCommand(Config->getValue<std::string>({"Basic", "Command"}, "cleaner"));
+    //  registry->unregisterCommand("voteclean");
 }

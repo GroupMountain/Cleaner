@@ -12,7 +12,7 @@ using namespace ll::schedule;
 using namespace ll::chrono_literals;
 int item_despawn_time = 3000;
 
-ServerTimeAsyncScheduler scheduler;
+//ServerTimeAsyncScheduler scheduler;
 bool                     auto_clean_triggerred = false;
 
 namespace Cleaner {
@@ -134,25 +134,25 @@ void CleanTask(int time, int announce_time) {
     auto time_1 = std::chrono::seconds::duration(time);
     auto time_2 = std::chrono::seconds::duration(time - announce_time);
     logger.info(Language->translate("cleaner.output.count1", {S(time_1.count())}));
-    scheduler.add<DelayTask>(time_2, [announce_time] {
+    //scheduler.add<DelayTask>(time_2, [announce_time] {
         logger.info(Language->translate("cleaner.output.count2", {S(announce_time)}));
-    });
-    scheduler.add<DelayTask>(time_1, [] {
+    //});
+    //scheduler.add<DelayTask>(time_1, [] {
         auto count = ExecuteClean();
         logger.info(Language->translate("cleaner.output.finish", {S(count)}));
         auto_clean_triggerred = false;
-    });
+    //});
 }
 
 void AutoCleanTask(int seconds) {
     auto time      = std::chrono::seconds::duration(seconds);
-    mAutoCleanTask = scheduler.add<RepeatTask>(time, [] {
+    //mAutoCleanTask = scheduler.add<RepeatTask>(time, [] {
         CleanTask(Config->getValue<int>({"Basic", "Notice1"}, 20), Config->getValue<int>({"Basic", "Notice2"}, 15));
-    });
+    //});
 }
 
 void CheckCleanTask(int max_entities, float min_tps) {
-    mCheckCleanTask = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
+    //mCheckCleanTask = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
         auto count = CountEntities();
         if (auto_clean_triggerred == false) {
             if (count >= max_entities) {
@@ -174,7 +174,7 @@ void CheckCleanTask(int max_entities, float min_tps) {
                 );
             }
         }
-    });
+    //});
 }
 
 void setShouldIgnore(GMLIB_Actor* ac) {
