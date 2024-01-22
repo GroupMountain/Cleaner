@@ -5,15 +5,15 @@
 #include <GMLIB/Server/PlayerAPI.h>
 #include <regex>
 
-GMLIB_JsonConfig*   Config   = nullptr;
-GMLIB_JsonLanguage* Language = nullptr;
+GMLIB::Files::JsonConfig* Config = nullptr;
+nlohmann::json            Language;
 
 using namespace ll::schedule;
 using namespace ll::chrono_literals;
 int item_despawn_time = 3000;
 
-//ServerTimeAsyncScheduler scheduler;
-bool                     auto_clean_triggerred = false;
+// ServerTimeAsyncScheduler scheduler;
+bool auto_clean_triggerred = false;
 
 namespace Cleaner {
 
@@ -133,47 +133,39 @@ int CountEntities() {
 void CleanTask(int time, int announce_time) {
     auto time_1 = std::chrono::seconds::duration(time);
     auto time_2 = std::chrono::seconds::duration(time - announce_time);
-    logger.info(Language->translate("cleaner.output.count1", {S(time_1.count())}));
-    //scheduler.add<DelayTask>(time_2, [announce_time] {
-        logger.info(Language->translate("cleaner.output.count2", {S(announce_time)}));
+    logger.info(tr("cleaner.output.count1", {S(time_1.count())}));
+    // scheduler.add<DelayTask>(time_2, [announce_time] {
+    logger.info(tr("cleaner.output.count2", {S(announce_time)}));
     //});
-    //scheduler.add<DelayTask>(time_1, [] {
-        auto count = ExecuteClean();
-        logger.info(Language->translate("cleaner.output.finish", {S(count)}));
-        auto_clean_triggerred = false;
+    // scheduler.add<DelayTask>(time_1, [] {
+    auto count = ExecuteClean();
+    logger.info(tr("cleaner.output.finish", {S(count)}));
+    auto_clean_triggerred = false;
     //});
 }
 
 void AutoCleanTask(int seconds) {
-    auto time      = std::chrono::seconds::duration(seconds);
-    //mAutoCleanTask = scheduler.add<RepeatTask>(time, [] {
-        CleanTask(Config->getValue<int>({"Basic", "Notice1"}, 20), Config->getValue<int>({"Basic", "Notice2"}, 15));
+    auto time = std::chrono::seconds::duration(seconds);
+    // mAutoCleanTask = scheduler.add<RepeatTask>(time, [] {
+    CleanTask(Config->getValue<int>({"Basic", "Notice1"}, 20), Config->getValue<int>({"Basic", "Notice2"}, 15));
     //});
 }
 
 void CheckCleanTask(int max_entities, float min_tps) {
-    //mCheckCleanTask = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
-        auto count = CountEntities();
-        if (auto_clean_triggerred == false) {
-            if (count >= max_entities) {
-                auto_clean_triggerred = true;
-                logger.warn(Language->translate("cleaner.output.triggerAutoCleanCount", {S(count)}));
-                CleanTask(
-                    Config->getValue<int>({"Basic", "Notice1"}, 20),
-                    Config->getValue<int>({"Basic", "Notice2"}, 15)
-                );
-            } else if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
-                auto_clean_triggerred = true;
-                logger.warn(Language->translate(
-                    "cleaner.output.triggerAutoCleanCount",
-                    {S(GMLIB_Level::getLevel()->getServerAverageTps())}
-                ));
-                CleanTask(
-                    Config->getValue<int>({"Basic", "Notice1"}, 20),
-                    Config->getValue<int>({"Basic", "Notice2"}, 15)
-                );
-            }
+    // mCheckCleanTask = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
+    auto count = CountEntities();
+    if (auto_clean_triggerred == false) {
+        if (count >= max_entities) {
+            auto_clean_triggerred = true;
+            logger.warn(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
+            CleanTask(Config->getValue<int>({"Basic", "Notice1"}, 20), Config->getValue<int>({"Basic", "Notice2"}, 15));
+        } else if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
+            auto_clean_triggerred = true;
+            logger.warn(tr("cleaner.output.triggerAutoCleanCount", {S(GMLIB_Level::getLevel()->getServerAverageTps())})
+            );
+            CleanTask(Config->getValue<int>({"Basic", "Notice1"}, 20), Config->getValue<int>({"Basic", "Notice2"}, 15));
         }
+    }
     //});
 }
 
@@ -216,10 +208,13 @@ void reloadCleaner() {
 }
 
 void loadConfig() {
-    Config = new GMLIB_JsonConfig("./plugins/Cleaner/config/config.json", defaultConfig);
+    Config = new GMLIB::Files::JsonConfig("./plugins/Cleaner/config/config.json", defaultConfig);
     Config->initConfig();
-    Language = new GMLIB_JsonLanguage("./plugins/Cleaner/config/language.json", defaultLanguage);
-    Language->initConfig();
+    if (!std::filesystem::exists("./plugins/Cleaner/config/language.json")) {
+        GMLIB::Files::JsonLanguage::writeFile("./plugins/Cleaner/config/language.json", nlohmann::json::parse(defaultLanguage));
+    }
+    GMLIB::Files::JsonLanguage::updateFile("./plugins/Cleaner/config/language.json", defaultLanguage);
+    Language = GMLIB::Files::JsonLanguage::readFromFile("./plugins/Cleaner/config/language.json");
 }
 
 void loadCleaner() {
@@ -242,7 +237,10 @@ void unloadCleaner() {
     mCheckCleanTask->cancel();
     // UnregisterCommands();
     delete Config;
-    delete Language;
 }
 
 } // namespace Cleaner
+
+std::string tr(std::string key, std::vector<std::string> data) {
+    return GMLIB::Files::JsonLanguage::translate(Language, key, data);
+}
