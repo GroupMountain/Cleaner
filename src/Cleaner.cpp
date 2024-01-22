@@ -210,11 +210,7 @@ void reloadCleaner() {
 void loadConfig() {
     Config = new GMLIB::Files::JsonConfig("./plugins/Cleaner/config/config.json", defaultConfig);
     Config->initConfig();
-    if (!std::filesystem::exists("./plugins/Cleaner/config/language.json")) {
-        GMLIB::Files::JsonLanguage::writeFile("./plugins/Cleaner/config/language.json", nlohmann::json::parse(defaultLanguage));
-    }
-    GMLIB::Files::JsonLanguage::updateFile("./plugins/Cleaner/config/language.json", defaultLanguage);
-    Language = GMLIB::Files::JsonLanguage::readFromFile("./plugins/Cleaner/config/language.json");
+    Language = GMLIB::Files::JsonLanguage::initLanguage("./plugins/Cleaner/config/language.json", defaultLanguage);
 }
 
 void loadCleaner() {
