@@ -8,8 +8,7 @@ inline std::string defaultConfig = R"({
         "Command": "cleaner",
         "Notice1": 20,
         "Notice2": 5,
-        "SendBroadcast": true,
-        "SendToast": false
+        "SendBroadcast": true
     },
     "AutoCleanCount": {
         "Enabled": true,

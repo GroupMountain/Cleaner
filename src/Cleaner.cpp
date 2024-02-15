@@ -133,11 +133,28 @@ void CleanTask() {
     auto announce_time = Config->getValue<int>({"Basic", "Notice2"}, 15);
     auto time_1        = std::chrono::seconds::duration(time);
     auto time_2        = std::chrono::seconds::duration(time - announce_time);
-    logger.info(tr("cleaner.output.count1", {S(time_1.count())}));
-    scheduler.add<DelayTask>(time_2, [announce_time] { logger.info(tr("cleaner.output.count2", {S(announce_time)})); });
+    if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+        logger.info(tr("cleaner.output.count1", {S(time_1.count())}));
+    }
+    if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
+        TextPacket::createRawMessage(tr("cleaner.output.count1", {S(time_1.count())})).sendToClients();
+    }
+    scheduler.add<DelayTask>(time_2, [announce_time] {
+        if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+            logger.info(tr("cleaner.output.count2", {S(announce_time)}));
+        }
+        if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
+            TextPacket::createRawMessage(tr("cleaner.output.count2", {S(announce_time)})).sendToClients();
+        }
+    });
     scheduler.add<DelayTask>(time_1, [] {
         auto count = ExecuteClean();
-        logger.info(tr("cleaner.output.finish", {S(count)}));
+        if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+            logger.info(tr("cleaner.output.finish", {S(count)}));
+        }
+        if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
+            TextPacket::createRawMessage(tr("cleaner.output.finish", {S(count)})).sendToClients();
+        }
         auto_clean_triggerred = false;
     });
 }

@@ -33,7 +33,13 @@ void RegCleanerCommand() {
             switch (param.action) {
             case CleanerParam::Action::clean: {
                 Cleaner::CleanTask();
-                return output.success(tr("cleaner.output.opClean"));
+                if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+                    logger.info(tr("cleaner.output.opClean"));
+                }
+                if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
+                    TextPacket::createRawMessage(tr("cleaner.output.opClean")).sendToClients();
+                }
+                return output.success(tr("cleaner.command.clean.output"));
             }
             case CleanerParam::Action::tps: {
                 return output.success(

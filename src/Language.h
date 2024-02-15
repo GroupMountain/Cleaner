@@ -2,12 +2,14 @@
 #include "Global.h"
 
 std::string defaultLanguage_zh_CN = R"({
+    "cleaner.toast.title": "§e§lCleaner",
     "cleaner.command.cleaner": "Cleaner管理员命令。",
     "cleaner.command.despawnSuccess": "已成功清除了 %1$s 个实体",
     "cleaner.command.error.noTarget": "没有与选择器匹配的目标",
     "cleaner.command.error.playerOnly": "该命令只能由玩家执行！",
     "cleaner.command.tps.output": "当前服务器实时TPS %1$s §r，平均TPS %2$s",
     "cleaner.command.mspt.output": "当前服务器实MSPT %1$s",
+    "cleaner.command.clean.output": "已成功启动清理任务！",
     "cleaner.command.voteclean": "发起实体清理投票。",
     "cleaner.command.despawntime" : "已成功将物品消失时间设置为 %1$s 游戏刻",
     "cleaner.output.count1": "系统将在 %1$s 秒后自动清理服务器实体！",
