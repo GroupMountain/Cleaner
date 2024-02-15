@@ -10,8 +10,11 @@ using namespace ll::chrono_literals;
 
 int item_despawn_time = 3000;
 
-ServerTimeAsyncScheduler scheduler;
-bool                     auto_clean_triggerred = false;
+ServerTimeScheduler scheduler;
+bool                auto_clean_triggerred = false;
+
+bool ConsoleLog = true;
+bool Announce   = true;
 
 namespace Cleaner {
 
@@ -130,30 +133,33 @@ int CountEntities() {
 
 void CleanTask() {
     auto time          = Config->getValue<int>({"Basic", "Notice1"}, 20);
-    auto announce_time = Config->getValue<int>({"Basic", "Notice2"}, 15);
+    auto announce_time = Config->getValue<int>({"Basic", "Notice2"}, 5);
     auto time_1        = std::chrono::seconds::duration(time);
     auto time_2        = std::chrono::seconds::duration(time - announce_time);
-    if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+    if (ConsoleLog) {
         logger.info(tr("cleaner.output.count1", {S(time_1.count())}));
     }
-    if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
-        TextPacket::createRawMessage(tr("cleaner.output.count1", {S(time_1.count())})).sendToClients();
+    if (Announce) {
+        TextPacket::createRawMessage(tr("cleaner.info.prefix") + tr("cleaner.output.count1", {S(time_1.count())}))
+            .sendToClients();
     }
     scheduler.add<DelayTask>(time_2, [announce_time] {
-        if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+        if (ConsoleLog) {
             logger.info(tr("cleaner.output.count2", {S(announce_time)}));
         }
-        if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
-            TextPacket::createRawMessage(tr("cleaner.output.count2", {S(announce_time)})).sendToClients();
+        if (Announce) {
+            TextPacket::createRawMessage(tr("cleaner.info.prefix") + tr("cleaner.output.count2", {S(announce_time)}))
+                .sendToClients();
         }
     });
     scheduler.add<DelayTask>(time_1, [] {
         auto count = ExecuteClean();
-        if (Config->getValue<bool>({"Basic", "ConsoleLog"}, true)) {
+        if (ConsoleLog) {
             logger.info(tr("cleaner.output.finish", {S(count)}));
         }
-        if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
-            TextPacket::createRawMessage(tr("cleaner.output.finish", {S(count)})).sendToClients();
+        if (Announce) {
+            TextPacket::createRawMessage(tr("cleaner.info.prefix") + tr("cleaner.output.finish", {S(count)}))
+                .sendToClients();
         }
         auto_clean_triggerred = false;
     });
@@ -235,6 +241,8 @@ void loadCleaner() {
         );
     }
     item_despawn_time = Config->getValue<int>({"ItemDespawn", "DespawnTime"}, 6000);
+    Announce          = Config->getValue<bool>({"Basic", "SendBroadcast"}, true);
+    ConsoleLog        = Config->getValue<bool>({"Basic", "ConsoleLog"}, true);
 }
 
 void unloadCleaner() {

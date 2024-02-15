@@ -2,7 +2,7 @@
 #include "Global.h"
 
 std::string defaultLanguage_en_US = R"({
-    "cleaner.toast.title": "§e§lCleaner",
+    "cleaner.info.prefix": "§e§l[Cleaner] §r",
     "cleaner.command.cleaner": "Cleaner admin command.",
     "cleaner.command.despawnSuccess": "Successfully despawned %1$s entities.",
     "cleaner.command.error.noTarget": "No targets matched the selector.",

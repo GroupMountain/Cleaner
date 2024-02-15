@@ -37,7 +37,7 @@ void RegCleanerCommand() {
                     logger.info(tr("cleaner.output.opClean"));
                 }
                 if (Config->getValue<bool>({"Basic", "SendBroadcast"}, true)) {
-                    TextPacket::createRawMessage(tr("cleaner.output.opClean")).sendToClients();
+                    TextPacket::createRawMessage(tr("cleaner.info.prefix") + tr("cleaner.output.opClean")).sendToClients();
                 }
                 return output.success(tr("cleaner.command.clean.output"));
             }
