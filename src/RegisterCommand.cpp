@@ -1,7 +1,72 @@
 #include "Global.h"
 
-using ParamType = DynamicCommand::ParameterType;
+struct CleanerParam {
+    enum class Despawn { despawn } despawn;
+    enum class Action { tps, clean, reload, mspt } action;
+    enum class DespawnTime { despawntime } despawntime;
+    int                    ticks;
+    CommandSelector<Actor> entity;
+};
 
+void RegCleanerCommand() {
+    auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
+        Config->getValue<std::string>({"Basic", "Command"}, "cleaner"),
+        tr("cleaner.command.cleaner"),
+        CommandPermissionLevel::GameDirectors
+    );
+    cmd.overload<CleanerParam>()
+        .required("despawn")
+        .required("entity")
+        .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+            auto ens = param.entity.results(origin);
+            if (ens.empty()) {
+                return output.error(tr("cleaner.command.error.noTarget"));
+            }
+            for (auto en : ens) {
+                en->despawn();
+            }
+            return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
+        }>();
+    cmd.overload<CleanerParam>()
+        .required("action")
+        .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+            switch (param.action) {
+            case CleanerParam::Action::clean: {
+                Cleaner::CleanTask();
+                return output.success(tr("cleaner.output.opClean"));
+            }
+            case CleanerParam::Action::tps: {
+                return output.success(
+                    tr("cleaner.command.tps.output",
+                       {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
+                        S(GMLIB_Level::getLevel()->getServerAverageTps())})
+                );
+            }
+            case CleanerParam::Action::mspt: {
+                return output.success(tr("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())}));
+            }
+            case CleanerParam::Action::reload: {
+                Cleaner::reloadCleaner();
+                return output.success(tr("cleaner.output.reload"));
+            }
+            }
+        }>();
+    cmd.overload<CleanerParam>()
+        .required("despawntime")
+        .required("ticks")
+        .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+            item_despawn_time = param.ticks;
+            Config->setValue({"ItemDespawn", "DespawnTime"}, item_despawn_time);
+            return output.success(tr("cleaner.command.despawntime", {S(item_despawn_time)}));
+        }>();
+};
+
+void RegisterCommands() {
+    RegCleanerCommand();
+    // RegVoteCommand(registry);
+}
+
+/*
 void RegVoteCommand(CommandRegistry& registry) {
     auto command = DynamicCommand::createCommand(registry, "voteclean", "Clean entities", CommandPermissionLevel::Any);
     command->addOverload();
@@ -13,75 +78,4 @@ void RegVoteCommand(CommandRegistry& registry) {
     });
     DynamicCommand::setup(registry, std::move(command));
 }
-
-void RegCleanerCommand(CommandRegistry& registry) {
-    auto command = DynamicCommand::createCommand(
-        registry,
-        Config->getValue<std::string>({"Basic", "Command"}, "cleaner"),
-        tr("cleaner.command.cleaner"),
-        CommandPermissionLevel::GameDirectors
-    );
-    command->setEnum("Despawn", {"despawn"});
-    command->setEnum("Action", {"tps", "clean", "reload", "mspt"});
-    command->setEnum("Despawntime", {"despawntime"});
-    command->mandatory("action", ParamType::Enum, "Action", CommandParameterOption::EnumAutocompleteExpansion);
-    command
-        ->mandatory("despawntime", ParamType::Enum, "Despawntime", CommandParameterOption::EnumAutocompleteExpansion);
-    command->mandatory("despawn", ParamType::Enum, "Despawn", CommandParameterOption::EnumAutocompleteExpansion);
-    command->mandatory("ticks", ParamType::Int);
-    command->mandatory("target", ParamType::Actor);
-    command->addOverload({"action"});
-    command->addOverload({"despawntime", "ticks"});
-    command->addOverload({"despawn", "target"});
-    command->setCallback([](DynamicCommand const&                                    cmd,
-                            CommandOrigin const&                                     origin,
-                            CommandOutput&                                           output,
-                            std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        if (result["despawn"].isSet && result["target"].isSet) {
-            auto ens = result["target"].get<std::vector<Actor*>>();
-            if (ens.size() == 0) {
-                return output.error(tr("cleaner.command.error.noTarget"));
-            }
-            for (auto en : ens) {
-                en->despawn();
-            }
-            return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
-        } else if (result["action"].isSet) {
-            auto act = result["action"].get<std::string>();
-            if (act == "tps") {
-                return output.success(
-                    tr("cleaner.command.tps.output",
-                       {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
-                        S(GMLIB_Level::getLevel()->getServerAverageTps())})
-                );
-            } else if (act == "mspt") {
-                return output.success(tr("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())}));
-            } else if (act == "clean") {
-                Cleaner::CleanTask(
-                    Config->getValue<int>({"Basic", "Notice1"}, 20),
-                    Config->getValue<int>({"Basic", "Notice2"}, 15)
-                );
-                return output.success(tr("cleaner.output.opClean"));
-            } else if (act == "reload") {
-                Cleaner::reloadCleaner();
-                return output.success(tr("cleaner.output.reload"));
-            }
-        } else if (result["despawntime"].isSet && result["ticks"].isSet) {
-            item_despawn_time = result["ticks"].get<int>();
-            return output.success(tr("cleaner.command.despawntime", {S(item_despawn_time)}));
-        }
-    });
-    DynamicCommand::setup(registry, std::move(command));
-}
-
-void RegisterCommands() {
-    auto registry = ll::service::bedrock::getCommandRegistry();
-    RegCleanerCommand(registry);
-    // RegVoteCommand(registry);
-}
-
-void UnregisterCommands() {
-    auto registry = ll::service::bedrock::getCommandRegistry();
-    registry->unregisterCommand(Config->getValue<std::string>({"Basic", "Command"}, "cleaner"));
-    //  registry->unregisterCommand("voteclean");
-}
+*/
