@@ -1,6 +1,40 @@
 #pragma once
 #include "Global.h"
 
+std::string defaultLanguage_en_US = R"({
+    "cleaner.toast.title": "§e§lCleaner",
+    "cleaner.command.cleaner": "Cleaner admin command.",
+    "cleaner.command.despawnSuccess": "Successfully despawned %1$s entities.",
+    "cleaner.command.error.noTarget": "No targets matched the selector.",
+    "cleaner.command.error.playerOnly": "This command can only be executed by players!",
+    "cleaner.command.tps.output": "Current server real-time TPS %1$s §r, average TPS %2$s.",
+    "cleaner.command.mspt.output": "Current server MSPT %1$s.",
+    "cleaner.command.clean.output": "Clean task successfully initiated!",
+    "cleaner.command.voteclean": "Initiate entity clean vote.",
+    "cleaner.command.despawntime": "Despawn time for items set to %1$s game ticks.",
+    "cleaner.output.count1": "The system will automatically clean server entities in %1$s seconds!",
+    "cleaner.output.count2": "Attention! The system will automatically clean server entities in %1$s seconds!",
+    "cleaner.output.finish": "Cleaning complete! A total of %1$s entities have been cleaned this time.",
+    "cleaner.output.opClean": "Admin has enabled server entity cleaning.",
+    "cleaner.output.reload": "Cleaner plugin reloaded. Some configurations may require a server restart to take effect.",
+    "cleaner.output.triggerAutoCleanCount": "Too many server entities detected! There are %1$s cleanable entities currently on the server. Auto-clean program has been activated.",
+    "cleaner.output.triggerAutoCleanTps": "Low TPS detected! Server average TPS %1$s\nClean program has been initiated.",
+    "cleaner.vote.cooldown": "Vote cleaning cooldown...",
+    "cleaner.vote.cancel": "Vote canceled!",
+    "cleaner.vote.confirmNo": "Think again",
+    "cleaner.vote.confirmOk": "Initiate vote",
+    "cleaner.vote.confirmTubtitle": "Do you want to initiate a clean vote?",
+    "cleaner.vote.accept": "You have agreed to entity cleaning.",
+    "cleaner.vote.deny": "You have declined entity cleaning.",
+    "cleaner.vote.no": "Deny",
+    "cleaner.vote.ok": "Agree",
+    "cleaner.vote.Subtitle": "Do you agree to clean server entities now?",
+    "cleaner.vote.Timeout": "Vote has expired!",
+    "cleaner.vote.succeed": "Vote cleaning successful!",
+    "cleaner.vote.title": "Vote Cleaning",
+    "cleaner.vote.toastNotice": "Notification"
+})";
+
 std::string defaultLanguage_zh_CN = R"({
     "cleaner.toast.title": "§e§lCleaner",
     "cleaner.command.cleaner": "Cleaner管理员命令。",
