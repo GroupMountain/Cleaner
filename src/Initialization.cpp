@@ -15,7 +15,6 @@ void initPlugin() {
     Language->updateOrCreateLanguage("en_US", defaultLanguage_en_US);
     Language->updateOrCreateLanguage("zh_CN", defaultLanguage_zh_CN);
     Language->loadAllLanguages();
-    logger.warn("language {}", languageCode);
     Language->chooseLanguage(languageCode);
 }
 

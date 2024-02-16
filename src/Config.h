@@ -1,15 +1,20 @@
 #pragma once
 #include "Global.h"
 
-inline std::string defaultConfig = R"({
+std::string defaultConfig = R"({
     "Basic": {
         "Language": "en_US",
-        "ConsoleLog": true,
         "Command": "cleaner",
         "Notice1": 20,
         "Notice2": 5,
-        "SendBroadcast": true
+        "ConsoleLog": true,
+        "SendBroadcast": true,
+        "SendToast": true
     },
+    "IgnoreTags": [
+        "ignore",
+        "不清理"
+    ],
     "AutoCleanCount": {
         "Enabled": true,
         "TriggerCount": 900
@@ -26,6 +31,7 @@ inline std::string defaultConfig = R"({
         ]
     },
     "CleanInanimate": {
+        "Enabled": true,
         "Blacklist": [
             "minecraft:xp_orb",
             "minecraft:arrow",
@@ -34,8 +40,7 @@ inline std::string defaultConfig = R"({
             "minecraft:wither_skull",
             "minecraft:wither_skull_dangerous",
             "minecraft:dragon_fireball"
-        ],
-        "Enabled": true
+        ]
     },
     "CleanItem": {
         "Enabled": true,
@@ -65,17 +70,13 @@ inline std::string defaultConfig = R"({
         ]
     },
     "CleanMobs": {
-        "BlackList": [
-            "minecraft:guardian",
-            "minecraft:zombie_pigman"
-        ],
+        "Enabled": true,
         "CleanMonstors": true,
         "CleanPeacefulMobs": false,
         "EnableAutoExclude": true,
-        "Enabled": true,
-        "IgnoreTags": [
-            "ignore",
-            "不清理"
+        "BlackList": [
+            "minecraft:guardian",
+            "minecraft:zombie_pigman"
         ],
         "Whitelist": [
             "minecraft:ender_dragon",
@@ -88,14 +89,14 @@ inline std::string defaultConfig = R"({
         ]
     },
     "ScheduleClean": {
-        "CleanInterval": 3600,
-        "Enabled": true
-        },    
-    "VoteClean": {
-        "CD": 120,
-        "Delay": 30,
         "Enabled": true,
-        "Percentage": 50,
-        "VoteCleanCommand": "voteclean"
+        "CleanInterval": 3600
+    },    
+    "VoteClean": {
+        "Enabled": true,
+        "VoteCleanCommand": "voteclean",
+        "Cooldown": 120,
+        "CheckDelay": 30,
+        "Percentage": 50   
     }
 })";
