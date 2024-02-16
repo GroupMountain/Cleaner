@@ -1,0 +1,26 @@
+{
+    "format_version": 2,
+    "tooth": "github.com/GroupMountain/Cleaner",
+    "version": "0.8.0",
+    "info": {
+        "name": "Cleaner",
+        "description": "A Powerful Entities Cleaning up Plugin for BDS",
+        "author": "GroupMountain",
+        "tags": [
+            "LeviLamina",
+            "Cleaner"
+        ]
+    },
+    "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.8.0/Cleaner-windows-x64.zip",
+    "dependencies": {
+        "github.com/GroupMountain/GMLIB": ">=0.8.0"
+    },
+    "files": {
+        "place": [
+            {
+                "src": "Cleaner/*",
+                "dest": "plugins/Cleaner"
+            }
+        ]
+    }
+}
