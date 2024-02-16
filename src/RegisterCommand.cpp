@@ -1,3 +1,4 @@
+#include "Features/Cleaner.h"
 #include "Global.h"
 
 struct CleanerParam {
@@ -33,7 +34,16 @@ void RegCleanerCommand() {
             switch (param.action) {
             case CleanerParam::Action::clean: {
                 Cleaner::CleanTask();
-                return output.success(tr("cleaner.output.opClean"));
+                if (ConfigFile::mConsoleLog) {
+                    logger.info(tr("cleaner.output.opClean"));
+                }
+                if (ConfigFile::mAnnounce) {
+                    Helper::broadcastMessage(tr("cleaner.output.opClean"));
+                }
+                if (ConfigFile::mSendToast) {
+                    Helper::broadcastToast(tr("cleaner.output.opClean"));
+                }
+                return output.success(tr("cleaner.command.clean.output"));
             }
             case CleanerParam::Action::tps: {
                 return output.success(
@@ -55,27 +65,30 @@ void RegCleanerCommand() {
         .required("despawntime")
         .required("ticks")
         .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
-            item_despawn_time = param.ticks;
-            Config->setValue({"ItemDespawn", "DespawnTime"}, item_despawn_time);
-            return output.success(tr("cleaner.command.despawntime", {S(item_despawn_time)}));
+            ConfigFile::mItemDespawnTicks = param.ticks;
+            Config->setValue({"ItemDespawn", "DespawnTime"}, ConfigFile::mItemDespawnTicks);
+            return output.success(tr("cleaner.command.despawntime", {S(ConfigFile::mItemDespawnTicks)}));
         }>();
 };
 
-void RegisterCommands() {
-    RegCleanerCommand();
-    // RegVoteCommand(registry);
+void RegVoteCommand() {
+    auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
+        Config->getValue<std::string>({"VoteClean", "VoteCleanCommand"}, "voteclean"),
+        tr("cleaner.command.voteclean"),
+        CommandPermissionLevel::Any
+    );
+    cmd.overload().execute<[&](CommandOrigin const& origin, CommandOutput& output) {
+        if (origin.getOriginType() == CommandOriginType::Player) {
+            auto pl = (Player*)origin.getEntity();
+            return VoteClean::voteCommandExecute(pl);
+        }
+        return output.error(tr("cleaner.command.error.playerOnly"));
+    }>();
 }
 
-/*
-void RegVoteCommand(CommandRegistry& registry) {
-    auto command = DynamicCommand::createCommand(registry, "voteclean", "Clean entities", CommandPermissionLevel::Any);
-    command->addOverload();
-    command->setCallback([](DynamicCommand const&                                    cmd,
-                            CommandOrigin const&                                     origin,
-                            CommandOutput&                                           output,
-                            std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        // vote clean command
-    });
-    DynamicCommand::setup(registry, std::move(command));
+void RegisterCommands() {
+    RegCleanerCommand();
+    if (Config->getValue<bool>({"VoteClean", "Enabled"}, false)) {
+        RegVoteCommand();
+    }
 }
-*/

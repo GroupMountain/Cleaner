@@ -12,10 +12,9 @@ void initPlugin() {
     std::string langPath     = "./plugins/Cleaner/language/";
     std::string languageCode = Config->getValue<std::string>({"Basic", "Language"}, "en_US");
     Language                 = new GMLIB::Files::I18n::JsonI18n(langPath, languageCode);
-    // Language->updateOrCreateLanguage("en_US", defaultLanguage_en_US);
+    Language->updateOrCreateLanguage("en_US", defaultLanguage_en_US);
     Language->updateOrCreateLanguage("zh_CN", defaultLanguage_zh_CN);
     Language->loadAllLanguages();
-    logger.warn("language {}", languageCode);
     Language->chooseLanguage(languageCode);
 }
 
