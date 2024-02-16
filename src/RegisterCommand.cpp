@@ -1,3 +1,4 @@
+#include "Features/Cleaner.h"
 #include "Global.h"
 
 struct CleanerParam {
@@ -70,21 +71,24 @@ void RegCleanerCommand() {
         }>();
 };
 
-void RegisterCommands() {
-    RegCleanerCommand();
-    // RegVoteCommand();
+void RegVoteCommand() {
+    auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
+        Config->getValue<std::string>({"VoteClean", "VoteCleanCommand"}, "voteclean"),
+        tr("cleaner.command.voteclean"),
+        CommandPermissionLevel::Any
+    );
+    cmd.overload().execute<[&](CommandOrigin const& origin, CommandOutput& output) {
+        if (origin.getOriginType() == CommandOriginType::Player) {
+            auto pl = (Player*)origin.getEntity();
+            return VoteClean::voteCommandExecute(pl);
+        }
+        return output.error(tr("cleaner.command.error.playerOnly"));
+    }>();
 }
 
-/*
-void RegVoteCommand() {
-    auto command = DynamicCommand::createCommand(registry, "voteclean", "Clean entities", CommandPermissionLevel::Any);
-    command->addOverload();
-    command->setCallback([](DynamicCommand const&                                    cmd,
-                            CommandOrigin const&                                     origin,
-                            CommandOutput&                                           output,
-                            std::unordered_map<std::string, DynamicCommand::Result>& result) {
-        // vote clean command
-    });
-    DynamicCommand::setup(registry, std::move(command));
+void RegisterCommands() {
+    RegCleanerCommand();
+    if (Config->getValue<bool>({"VoteClean", "Enabled"}, false)) {
+        RegVoteCommand();
+    }
 }
-*/

@@ -28,11 +28,13 @@ std::string defaultLanguage_en_US = R"({
     "cleaner.vote.deny": "You have declined entity cleaning.",
     "cleaner.vote.no": "Deny",
     "cleaner.vote.ok": "Agree",
-    "cleaner.vote.Subtitle": "Do you agree to clean server entities now?",
-    "cleaner.vote.Timeout": "Vote has expired!",
+    "cleaner.vote.subtitle": "%1$s lunched a clean vote.\n\n Do you agree to clean server entities now?",
+    "cleaner.vote.timeout": "Vote has expired!",
     "cleaner.vote.succeed": "Vote cleaning successful!",
+    "cleaner.vote.failed": "Vote cleaning did not passed!",
     "cleaner.vote.title": "Vote Cleaning",
-    "cleaner.vote.toastNotice": "Notification"
+    "cleaner.vote.voted": "You have been voted!",
+    "cleaner.vote.voteMessage": "%1$s lunched a clean vote. If you agree cleaning entities but did not received a form, please type command /voteclean to vote."
 })";
 
 std::string defaultLanguage_zh_CN = R"({
@@ -53,7 +55,7 @@ std::string defaultLanguage_zh_CN = R"({
     "cleaner.output.reload": "已重载Cleaner插件，部分配置可能需要重启服务器才能生效。",
     "cleaner.output.triggerAutoCleanCount": "检测到服务器实体过多！！当前服务器存在 %1$s 个可清理实体，已启动自动清理程序。",
     "cleaner.output.triggerAutoCleanTps": "当前服务器TPS过低！！服务器平均TPS %1$s\n系统已启动清理程序。",
-    "cleaner.vote.cooldown": "投票清理冷却...",
+    "cleaner.vote.cooldown": "投票清理正在冷却...",
     "cleaner.vote.cancel": "投票已取消！",
     "cleaner.vote.confirmNo": "我再想想",
     "cleaner.vote.confirmOk": "发起投票",
@@ -62,9 +64,11 @@ std::string defaultLanguage_zh_CN = R"({
     "cleaner.vote.deny": "你已拒绝实体清理。",
     "cleaner.vote.no": "拒绝",
     "cleaner.vote.ok": "同意",
-    "cleaner.vote.Subtitle": "你是否同意现在清理服务器实体？",
-    "cleaner.vote.Timeout": "投票已过期！",
+    "cleaner.vote.subtitle": "%1$s 发起了服务器实体清理投票！\n\n你是否同意现在清理服务器实体？",
+    "cleaner.vote.timeout": "投票已过期！",
     "cleaner.vote.succeed": "投票清理成功！",
+    "cleaner.vote.failed": "投票清理未通过。",
     "cleaner.vote.title": "投票清理",
-    "cleaner.vote.toastNotice": "通知"
+    "cleaner.vote.voted": "你已经投过票了！",
+    "cleaner.vote.voteMessage": "%1$s 发起了服务器实体清理投票！如果同意清理但是未收到表单，请输入命令 /voteclean 投票。拒绝清理请忽略此信息。"
 })";

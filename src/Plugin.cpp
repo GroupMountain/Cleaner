@@ -1,3 +1,4 @@
+#include "Features/Cleaner.h"
 #include "Global.h"
 
 ll::Logger logger("Cleaner");
@@ -10,6 +11,8 @@ Plugin::Plugin(ll::plugin::NativePlugin& self) : mSelf(self) {
 }
 
 bool Plugin::enable() {
+    Cleaner::ListenEvents();
+    RegisterCommands();
     Cleaner::loadCleaner();
     logger.info("Cleaner Loaded!");
     logger.info("Author: GroupMountain");

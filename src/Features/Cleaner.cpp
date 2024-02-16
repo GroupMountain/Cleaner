@@ -3,8 +3,6 @@
 namespace Cleaner {
 
 void loadCleaner() {
-    ListenEvents();
-    RegisterCommands();
     if (Config->getValue<bool>({"ScheduleClean", "Enabled"}, false)) {
         Cleaner::AutoCleanTask(Config->getValue<int>({"ScheduleClean", "CleanInterval"}, 3000));
     }
@@ -21,15 +19,14 @@ void loadCleaner() {
     ConfigFile::mSendToast        = Config->getValue<bool>({"Basic", "SendToast"}, true);
 }
 
-void unloadCleaner() {
-    stopAllTasks();
-    delete Config;
-    delete Language;
-}
+void unloadCleaner() { stopAllTasks(); }
 
 void reloadCleaner() {
     unloadCleaner();
-    initPlugin();
+    Config->init();
+    std::string languageCode = Config->getValue<std::string>({"Basic", "Language"}, "en_US");
+    Language->loadAllLanguages();
+    Language->chooseLanguage(languageCode);
     loadCleaner();
 }
 

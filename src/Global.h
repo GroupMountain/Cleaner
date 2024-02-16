@@ -20,13 +20,6 @@ extern bool mAnnounce;
 extern bool mSendToast;
 } // namespace ConfigFile
 
-namespace Cleaner {
-extern void CleanTask();
-extern void reloadCleaner();
-extern void loadCleaner();
-extern void unloadCleaner();
-} // namespace Cleaner
-
 namespace Helper {
 extern void broadcastMessage(std::string msg);
 extern void broadcastToast(std::string msg);

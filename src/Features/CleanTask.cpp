@@ -11,9 +11,6 @@ bool mSendToast  = true;
 
 namespace Cleaner {
 
-using namespace ll::schedule;
-using namespace ll::chrono_literals;
-
 static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mAutoCleanTask;
 static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCheckCleanTask;
 
