@@ -21,8 +21,8 @@ extern bool mSendToast;
 } // namespace ConfigFile
 
 namespace Helper {
-extern void broadcastMessage(std::string msg);
-extern void broadcastToast(std::string msg);
+extern void broadcastMessage(std::string_view msg);
+extern void broadcastToast(std::string_view msg);
 } // namespace Helper
 
 extern std::string tr(std::string key, std::vector<std::string> data = {});

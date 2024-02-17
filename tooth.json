@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "tooth": "github.com/GroupMountain/Cleaner",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "info": {
         "name": "Cleaner",
         "description": "A Powerful Entities Cleaning up Plugin for BDS",
@@ -11,9 +11,9 @@
             "Cleaner"
         ]
     },
-    "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.8.0/Cleaner-windows-x64.zip",
+    "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.8.1/Cleaner-windows-x64.zip",
     "dependencies": {
-        "github.com/GroupMountain/GMLIB": ">=0.8.0"
+        "github.com/GroupMountain/GMLIB": ">=0.8.2"
     },
     "files": {
         "place": [
