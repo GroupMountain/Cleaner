@@ -23,9 +23,9 @@ void unloadCleaner() { stopAllTasks(); }
 
 void reloadCleaner() {
     unloadCleaner();
-    Config->init();
+    Config->reload();
     std::string languageCode = Config->getValue<std::string>({"Basic", "Language"}, "en_US");
-    Language->loadAllLanguages();
+    Language->reloadAllLanguages();
     Language->chooseLanguage(languageCode);
     loadCleaner();
 }

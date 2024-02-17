@@ -83,13 +83,13 @@ void CheckCleanTask(int max_entities, float min_tps) {
                 auto_clean_triggerred = true;
                 auto mspt             = S(GMLIB_Level::getLevel()->getServerAverageTps());
                 if (ConfigFile::mConsoleLog) {
-                    logger.warn(tr("cleaner.output.triggerAutoCleanCount", {mspt}));
+                    logger.warn(tr("cleaner.output.triggerAutoCleanTps", {mspt}));
                 }
                 if (ConfigFile::mAnnounce) {
-                    Helper::broadcastMessage(tr("cleaner.output.triggerAutoCleanCount", {mspt}));
+                    Helper::broadcastMessage(tr("cleaner.output.triggerAutoCleanTps", {mspt}));
                 }
                 if (ConfigFile::mSendToast) {
-                    Helper::broadcastToast(tr("cleaner.output.triggerAutoCleanCount", {mspt}));
+                    Helper::broadcastToast(tr("cleaner.output.triggerAutoCleanTps", {mspt}));
                 }
                 CleanTask();
             }
