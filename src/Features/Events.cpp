@@ -29,7 +29,17 @@ void ListenEvents() {
                     return;
                 }
             }
-            item.lifeTime() = ConfigFile::mItemDespawnTicks;
+            if (Config->getValue<bool>({"ItemDespawn", "Enabled"}, true)) {
+                item.lifeTime() = ConfigFile::mItemDespawnTicks;
+                auto list       = Config->getValue<std::vector<std::string>>({"ItemDespawn", "WhiteList"}, {});
+                auto type       = item.item().getTypeName();
+                for (auto& key : list) {
+                    if (isMatch(type, key)) {
+                        return;
+                    }
+                }
+                item.lifeTime() = ConfigFile::mItemDespawnTicks;
+            }
         }
     );
     // MobTakeItemEvent

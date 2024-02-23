@@ -21,6 +21,8 @@ extern void reloadCleaner();
 extern void loadCleaner();
 extern void unloadCleaner();
 
+extern bool isMatch(std::string& A, std::string& B);
+
 } // namespace Cleaner
 
 namespace VoteClean {
