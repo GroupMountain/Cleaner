@@ -11,9 +11,9 @@ bool mSendToast  = true;
 
 namespace Cleaner {
 
-static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mAutoCleanTask;
-static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCleanTaskCount;
-static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCleanTaskTPS;
+static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mAutoCleanTask  = nullptr;
+static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCleanTaskCount = nullptr;
+static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCleanTaskTPS   = nullptr;
 
 ServerTimeScheduler scheduler;
 
@@ -107,9 +107,17 @@ void CleanTaskTPS(float min_tps) {
 }
 
 void stopAllTasks() {
-    mCleanTaskTPS->cancel();
-    mCleanTaskCount->cancel();
-    mAutoCleanTask->cancel();
+    if (!mCleanTaskCount) {
+        mCleanTaskTPS->cancel();
+        scheduler.remove(mCleanTaskTPS);
+    }
+    if (mCleanTaskCount) {
+        mCleanTaskCount->cancel();
+        scheduler.remove(mCleanTaskCount);
+    }
+    if (mAutoCleanTask) {
+        mAutoCleanTask->cancel();
+        scheduler.remove(mAutoCleanTask);
+    }
 }
-
 } // namespace Cleaner
