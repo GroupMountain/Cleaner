@@ -12,7 +12,8 @@ bool mSendToast  = true;
 namespace Cleaner {
 
 static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mAutoCleanTask;
-static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCheckCleanTask;
+static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCleanTaskCount;
+static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mCleanTaskTPS;
 
 ServerTimeScheduler scheduler;
 
@@ -63,8 +64,8 @@ void AutoCleanTask(int seconds) {
     mAutoCleanTask = scheduler.add<RepeatTask>(time, [] { CleanTask(); });
 }
 
-void CheckCleanTask(int max_entities, float min_tps) {
-    mCheckCleanTask = scheduler.add<RepeatTask>(10s, [max_entities, min_tps] {
+void CleanTaskCount(int max_entities) {
+    mCleanTaskCount = scheduler.add<RepeatTask>(10s, [max_entities] {
         auto count = CountEntities();
         if (auto_clean_triggerred == false) {
             if (count >= max_entities) {
@@ -79,7 +80,15 @@ void CheckCleanTask(int max_entities, float min_tps) {
                     Helper::broadcastToast(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
                 }
                 CleanTask();
-            } else if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
+            }
+        }
+    });
+}
+
+void CleanTaskTPS(float min_tps) {
+    mCleanTaskTPS = scheduler.add<RepeatTask>(10s, [min_tps] {
+        if (auto_clean_triggerred == false) {
+            if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
                 auto_clean_triggerred = true;
                 auto mspt             = S(GMLIB_Level::getLevel()->getServerAverageTps());
                 if (ConfigFile::mConsoleLog) {
@@ -98,7 +107,8 @@ void CheckCleanTask(int max_entities, float min_tps) {
 }
 
 void stopAllTasks() {
-    mCheckCleanTask->cancel();
+    mCleanTaskTPS->cancel();
+    mCleanTaskCount->cancel();
     mAutoCleanTask->cancel();
 }
 

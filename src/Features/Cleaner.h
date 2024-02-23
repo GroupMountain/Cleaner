@@ -12,7 +12,8 @@ extern int ExecuteClean();
 extern int CountEntities();
 
 extern void AutoCleanTask(int seconds);
-extern void CheckCleanTask(int max_entities, float min_tps);
+extern void CleanTaskCount(int max_entities);
+extern void CleanTaskTPS(float min_tps);
 extern void ListenEvents();
 extern void stopAllTasks();
 extern void CleanTask();
