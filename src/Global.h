@@ -18,6 +18,7 @@ extern int  mItemDespawnTicks;
 extern bool mConsoleLog;
 extern bool mAnnounce;
 extern bool mSendToast;
+extern std::vector<std::string> mIgnoreTags;
 } // namespace ConfigFile
 
 namespace Helper {

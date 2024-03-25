@@ -16,6 +16,7 @@ void loadCleaner() {
     ConfigFile::mAnnounce         = Config->getValue<bool>({"Basic", "SendBroadcast"}, true);
     ConfigFile::mConsoleLog       = Config->getValue<bool>({"Basic", "ConsoleLog"}, true);
     ConfigFile::mSendToast        = Config->getValue<bool>({"Basic", "SendToast"}, true);
+    ConfigFile::mIgnoreTags       = Config->getValue<std::vector<std::string>>({"IgnoreTags"}, {});
 }
 
 void unloadCleaner() { stopAllTasks(); }

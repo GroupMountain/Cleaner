@@ -17,11 +17,7 @@ bool isMatch(std::string& A, std::string& B) {
 
 bool shouldIgnore(GMLIB_Actor* ac) {
     if (ac->isMob() || ac->isItemActor()) {
-        if (ac->isTame() || ac->isTrusting() || ac->getNameTag() != "") {
-            return true;
-        }
-        auto nbt = ac->getNbt();
-        if (nbt->getByte("ShowBottom") == 1) { // End Crystal Used Only, if has this tag 1b, it is modified by cleaner.
+        if (ac->isTame() || ac->isTrusting() || ac->getNameTag() != "" || ac->hasTag("cleaner:ignore")) {
             return true;
         }
     }
@@ -35,8 +31,7 @@ bool ShouldClean(Actor* actor) {
         return false;
     }
     auto type = en->getTypeName();
-    auto tags = Config->getValue<std::vector<std::string>>({"IgnoreTags"}, {});
-    for (auto& tag : tags) {
+    for (auto& tag : ConfigFile::mIgnoreTags) {
         if (en->hasTag(tag)) {
             return false;
         }

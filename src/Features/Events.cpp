@@ -9,11 +9,7 @@ int mItemDespawnTicks = 3000;
 
 namespace Cleaner {
 
-void setShouldIgnore(GMLIB_Actor* ac) {
-    auto nbt = ac->getNbt();
-    nbt->put("ShowBottom", ByteTag(1));
-    ac->setNbt(*nbt);
-}
+void setShouldIgnore(GMLIB_Actor* ac) { ac->addTag("cleaner:ignore"); }
 
 void ListenEvents() {
     auto& eventBus = ll::event::EventBus::getInstance();
@@ -21,8 +17,8 @@ void ListenEvents() {
     eventBus.emplaceListener<GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent>(
         [](GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent& event) {
             auto& item = event.getItemActor();
-            auto  pl   = (GMLIB_Player*)event.getSpawner();
-            if (pl) {
+            if (event.getSpawner().has_value()) {
+                auto pl = (GMLIB_Player*)event.getSpawner().as_ptr();
                 if (pl->isPlayer() && !pl->isAlive()) { // Death Drop
                     auto ac = (GMLIB_Actor*)&item;
                     setShouldIgnore(ac);

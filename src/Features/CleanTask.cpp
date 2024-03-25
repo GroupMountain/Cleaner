@@ -2,9 +2,10 @@
 
 namespace ConfigFile {
 
-bool mConsoleLog = true;
-bool mAnnounce   = true;
-bool mSendToast  = true;
+bool                     mConsoleLog = true;
+bool                     mAnnounce   = true;
+bool                     mSendToast  = true;
+std::vector<std::string> mIgnoreTags = {};
 
 } // namespace ConfigFile
 
