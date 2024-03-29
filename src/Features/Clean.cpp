@@ -57,7 +57,7 @@ bool ShouldClean(Actor* actor) {
     // Mobs
     else if (en->isMob()) {
         if (Config->getValue<bool>({"CleanMobs", "Enabled"}, false)) {
-            auto blacklist = Config->getValue<std::vector<std::string>>({"CleanMobs", "Blacklist"}, {});
+            auto blacklist = Config->getValue<std::vector<std::string>>({"CleanMobs", "BlackList"}, {});
             for (auto& key : blacklist) {
                 if (isMatch(type, key)) {
                     return true;
