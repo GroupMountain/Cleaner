@@ -30,20 +30,22 @@ void sendVoteForm(Player* pl) {
         tr("cleaner.vote.no")
     );
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
-        fm.sendTo(pl, [](Player& player, ll::form::ModalForm::SelectedButton button) {
-            switch (button) {
-            case ll::form::ModalForm::SelectedButton::Upper: {
-                voteList[player.getUuid()] = true;
-                player.sendMessage(tr("cleaner.vote.accept"));
-                return;
-            }
-            case ll::form::ModalForm::SelectedButton::Lower: {
-                voteList[player.getUuid()] = false;
-                player.sendMessage(tr("cleaner.vote.deny"));
-                return;
-            }
-            default:
-                return;
+        fm.sendTo(pl, [](Player& player, ll::form::ModalFormResult result, ll::form::FormCancelReason reason) {
+            if (result.has_value()) {
+                switch (result.value()) {
+                case ll::form::ModalFormSelectedButton::Upper: {
+                    voteList[player.getUuid()] = true;
+                    player.sendMessage(tr("cleaner.vote.accept"));
+                    return;
+                }
+                case ll::form::ModalFormSelectedButton::Lower: {
+                    voteList[player.getUuid()] = false;
+                    player.sendMessage(tr("cleaner.vote.deny"));
+                    return;
+                }
+                default:
+                    return;
+                }
             }
         });
         return true;
@@ -104,16 +106,18 @@ void confirmForm(Player* pl) {
         tr("cleaner.vote.confirmOk"),
         tr("cleaner.vote.confirmNo")
     );
-    fm.sendTo(*pl, [](Player& player, ll::form::ModalForm::SelectedButton button) {
-        switch (button) {
-        case ll::form::ModalForm::SelectedButton::Upper: {
-            return voteClean(&player);
-        }
-        case ll::form::ModalForm::SelectedButton::Lower: {
-            return player.sendMessage(tr("cleaner.vote.cancel"));
-        }
-        default:
-            return;
+    fm.sendTo(*pl, [](Player& player, ll::form::ModalFormResult result, ll::form::FormCancelReason reason) {
+        if (result.has_value()) {
+            switch (result.value()) {
+            case ll::form::ModalFormSelectedButton::Upper: {
+                return voteClean(&player);
+            }
+            case ll::form::ModalFormSelectedButton::Lower: {
+                return player.sendMessage(tr("cleaner.vote.cancel"));
+            }
+            default:
+                return;
+            }
         }
     });
 }
