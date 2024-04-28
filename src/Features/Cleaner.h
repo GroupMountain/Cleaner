@@ -6,8 +6,6 @@ using namespace ll::chrono_literals;
 
 namespace Cleaner {
 
-extern ServerTimeScheduler scheduler;
-
 extern int ExecuteClean();
 extern int CountEntities();
 

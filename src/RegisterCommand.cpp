@@ -1,5 +1,5 @@
 #include "Features/Cleaner.h"
-#include "Global.h"
+#include "Plugin.h"
 
 struct CleanerParam {
     enum class Despawn { despawn } despawn;
@@ -10,9 +10,10 @@ struct CleanerParam {
 };
 
 void RegCleanerCommand() {
-    auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
-        Config->getValue<std::string>({"Basic", "Command"}, "cleaner"),
-        tr("cleaner.command.cleaner"),
+    auto& config = Cleaner::Entry::getInstance().getConfig();
+    auto& cmd    = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
+        config.Basic.Command,
+        I18nAPI::get("cleaner.command.cleaner"),
         CommandPermissionLevel::GameDirectors
     );
     cmd.overload<CleanerParam>()
@@ -21,12 +22,12 @@ void RegCleanerCommand() {
         .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             auto ens = param.entity.results(origin);
             if (ens.empty()) {
-                return output.error(tr("cleaner.command.error.noTarget"));
+                return output.error(I18nAPI::get("cleaner.command.error.noTarget"));
             }
             for (auto en : ens) {
                 en->despawn();
             }
-            return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
+            return output.success(I18nAPI::get("cleaner.command.despawnSuccess", {S(ens.size())}));
         }>();
     cmd.overload<CleanerParam>()
         .required("action")
@@ -34,30 +35,32 @@ void RegCleanerCommand() {
             switch (param.action) {
             case CleanerParam::Action::clean: {
                 Cleaner::CleanTask();
-                if (ConfigFile::mConsoleLog) {
-                    logger.info(tr("cleaner.output.opClean"));
+                if (Cleaner::Entry::getInstance().getConfig().Basic.ConsoleLog) {
+                    logger.info(I18nAPI::get("cleaner.output.opClean"));
                 }
-                if (ConfigFile::mAnnounce) {
-                    Helper::broadcastMessage(tr("cleaner.output.opClean"));
+                if (Cleaner::Entry::getInstance().getConfig().Basic.SendBroadcast) {
+                    Helper::broadcastMessage(I18nAPI::get("cleaner.output.opClean"));
                 }
-                if (ConfigFile::mSendToast) {
-                    Helper::broadcastToast(tr("cleaner.output.opClean"));
+                if (Cleaner::Entry::getInstance().getConfig().Basic.SendToast) {
+                    Helper::broadcastToast(I18nAPI::get("cleaner.output.opClean"));
                 }
-                return output.success(tr("cleaner.command.clean.output"));
+                return output.success(I18nAPI::get("cleaner.command.clean.output"));
             }
             case CleanerParam::Action::tps: {
-                return output.success(
-                    tr("cleaner.command.tps.output",
-                       {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
-                        S(GMLIB_Level::getLevel()->getServerAverageTps())})
-                );
+                return output.success(I18nAPI::get(
+                    "cleaner.command.tps.output",
+                    {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
+                     S(GMLIB_Level::getLevel()->getServerAverageTps())}
+                ));
             }
             case CleanerParam::Action::mspt: {
-                return output.success(tr("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())}));
+                return output.success(
+                    I18nAPI::get("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
+                );
             }
             case CleanerParam::Action::reload: {
                 Cleaner::reloadCleaner();
-                return output.success(tr("cleaner.output.reload"));
+                return output.success(I18nAPI::get("cleaner.output.reload"));
             }
             }
         }>();
@@ -65,16 +68,16 @@ void RegCleanerCommand() {
         .required("despawntime")
         .required("ticks")
         .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
-            ConfigFile::mItemDespawnTicks = param.ticks;
-            Config->setValue({"ItemDespawn", "DespawnTime"}, ConfigFile::mItemDespawnTicks);
-            return output.success(tr("cleaner.command.despawntime", {S(ConfigFile::mItemDespawnTicks)}));
+            Cleaner::Entry::getInstance().getConfig().ItemDespawn.DespawnTime = param.ticks;
+            Cleaner::Entry::getInstance().saveConfig();
+            return output.success(I18nAPI::get("cleaner.command.despawntime", {S(param.ticks)}));
         }>();
 };
 
 void RegVoteCommand() {
     auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
-        Config->getValue<std::string>({"VoteClean", "VoteCleanCommand"}, "voteclean"),
-        tr("cleaner.command.voteclean"),
+        Cleaner::Entry::getInstance().getConfig().VoteClean.VoteCleanCommand,
+        I18nAPI::get("cleaner.command.voteclean"),
         CommandPermissionLevel::Any
     );
     cmd.overload().execute<[&](CommandOrigin const& origin, CommandOutput& output) {
@@ -82,13 +85,13 @@ void RegVoteCommand() {
             auto pl = (Player*)origin.getEntity();
             return VoteClean::voteCommandExecute(pl);
         }
-        return output.error(tr("cleaner.command.error.playerOnly"));
+        return output.error(I18nAPI::get("cleaner.command.error.playerOnly"));
     }>();
 }
 
 void RegisterCommands() {
     RegCleanerCommand();
-    if (Config->getValue<bool>({"VoteClean", "Enabled"}, false)) {
+    if (Cleaner::Entry::getInstance().getConfig().VoteClean.Enabled) {
         RegVoteCommand();
     }
 }

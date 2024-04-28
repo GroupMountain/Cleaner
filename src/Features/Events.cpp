@@ -1,21 +1,15 @@
 #include "Cleaner.h"
 
-namespace ConfigFile {
-
-int mItemDespawnTicks = 3000;
-
-} // namespace ConfigFile
-
-
 namespace Cleaner {
 
 void setShouldIgnore(GMLIB_Actor* ac) { ac->addTag("cleaner:ignore"); }
 
 void ListenEvents() {
     auto& eventBus = ll::event::EventBus::getInstance();
+    auto& config   = Cleaner::Entry::getInstance().getConfig();
     // ItemSpawnEvent
     eventBus.emplaceListener<GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent>(
-        [](GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent& event) {
+        [&config](GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent& event) {
             auto& item = event.getItemActor();
             if (event.getSpawner().has_value()) {
                 auto pl = (GMLIB_Player*)event.getSpawner().as_ptr();
@@ -25,16 +19,16 @@ void ListenEvents() {
                     return;
                 }
             }
-            if (Config->getValue<bool>({"ItemDespawn", "Enabled"}, true)) {
-                item.lifeTime() = ConfigFile::mItemDespawnTicks;
-                auto list       = Config->getValue<std::vector<std::string>>({"ItemDespawn", "WhiteList"}, {});
+            if (config.ItemDespawn.Enabled) {
+                item.lifeTime() = config.ItemDespawn.DespawnTime;
+                auto list       = config.ItemDespawn.WhiteList;
                 auto type       = item.item().getTypeName();
                 for (auto& key : list) {
                     if (isMatch(type, key)) {
                         return;
                     }
                 }
-                item.lifeTime() = ConfigFile::mItemDespawnTicks;
+                item.lifeTime() = config.ItemDespawn.DespawnTime;
             }
         }
     );

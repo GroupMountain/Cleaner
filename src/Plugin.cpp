@@ -1,16 +1,25 @@
 #include "Features/Cleaner.h"
 #include "Global.h"
+#include "Language.h"
 
 ll::Logger logger("Cleaner");
 
-namespace plugin {
+namespace Cleaner {
 
-Plugin::Plugin(ll::plugin::NativePlugin& self) : mSelf(self) {
-    // Code for loading the plugin goes here.
-    initPlugin();
-}
+static std::unique_ptr<Entry> instance;
 
-bool Plugin::enable() {
+Entry& Entry::getInstance() { return *instance; }
+
+bool Entry::load() { return true; }
+
+bool Entry::enable() {
+    mConfig.emplace();
+    mScheduler.emplace();
+    ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
+    saveConfig();
+    I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
+    I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
+    I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
     Cleaner::ListenEvents();
     RegisterCommands();
     Cleaner::loadCleaner();
@@ -20,11 +29,19 @@ bool Plugin::enable() {
     return true;
 }
 
-bool Plugin::disable() {
-    // Code for disabling the plugin goes here.
+bool Entry::disable() {
+    mConfig.reset();
     Cleaner::unloadCleaner();
-    logger.info("Cleaner Disabled!");
+    mScheduler.reset();
     return true;
 }
 
-} // namespace plugin
+Config& Entry::getConfig() { return mConfig.value(); }
+
+void Entry::saveConfig() { ll::config::saveConfig(*mConfig, getSelf().getConfigDir() / "config.json"); }
+
+ServerTimeScheduler& Entry::getScheduler() { return mScheduler.value(); }
+
+} // namespace Cleaner
+
+LL_REGISTER_PLUGIN(Cleaner::Entry, Cleaner::instance);

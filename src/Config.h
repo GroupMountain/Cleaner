@@ -1,38 +1,40 @@
 #pragma once
-#include "Global.h"
+#include <iostream>
+#include <vector>
 
-std::string defaultConfig = R"({
-    "Basic": {
-        "Language": "en_US",
-        "Command": "cleaner",
-        "Notice1": 20,
-        "Notice2": 5,
-        "ConsoleLog": true,
-        "SendBroadcast": true,
-        "SendToast": true
-    },
-    "IgnoreTags": [
-        "ignore",
-        "不清理"
-    ],
-    "AutoCleanCount": {
-        "Enabled": true,
-        "TriggerCount": 900
-    },
-    "AutoCleanTPS": {
-        "Enabled": false,
-        "TriggerTPS": 15
-    },
-    "ItemDespawn": {
-        "Enabled": true,
-        "DespawnTime": 6000,
-        "WhiteList": [
-            "minecraft:elytra"
-        ]
-    },
-    "CleanInanimate": {
-        "Enabled": true,
-        "Blacklist": [
+struct Config {
+    int version = 1;
+
+    struct basic {
+        std::string Command       = "cleaner";
+        int         Notice1       = 20;
+        int         Notice2       = 5;
+        bool        ConsoleLog    = true;
+        bool        SendBroadcast = true;
+        bool        SendToast     = true;
+    } Basic;
+
+    std::vector<std::string> IgnoreTags = {"ignore", "不清理"};
+
+    struct auto_clean_count {
+        bool Enabled      = true;
+        int  TriggerCount = 900;
+    } AutoCleanCount;
+
+    struct auto_clean_tps {
+        bool Enabled    = true;
+        int  TriggerTPS = 15;
+    } AutoCleanTPS;
+
+    struct item_despawn {
+        bool                     Enabled     = true;
+        int                      DespawnTime = 6000;
+        std::vector<std::string> WhiteList   = {"minecraft:elytra"};
+    } ItemDespawn;
+
+    struct Clean_Inanimate {
+        bool                     Enabled   = true;
+        std::vector<std::string> Blacklist = {
             "minecraft:xp_orb",
             "minecraft:arrow",
             "minecraft:fireball",
@@ -40,45 +42,30 @@ std::string defaultConfig = R"({
             "minecraft:wither_skull",
             "minecraft:wither_skull_dangerous",
             "minecraft:dragon_fireball"
-        ]
-    },
-    "CleanItem": {
-        "Enabled": true,
-        "ExistTicks": 0,
-        "Whitelist": [
-            "minecraft:netherite_helmet",
-            "minecraft:netherite_sword",
-            "minecraft:netherite_chestplate",
-            "minecraft:diamond_helmet",
-            "minecraft:netherite_leggings",
-            "minecraft:undyed_shulker_box",
-            "minecraft:netherite_boots",
-            "minecraft:shulker_box",
-            "minecraft:elytra",
-            "minecraft:dragon_egg",
-            "minecraft:nether_star",
-            "minecraft:diamond_sword",
-            "minecraft:diamond_chestplate",
-            "minecraft:diamond_boots",
-            "minecraft:diamond_leggings",
-            "minecraft:diamond_hoe",
-            "minecraft:netherite_hoe",
-            "minecraft:diamond_axe",
-            "minecraft:netherite_axe",
-            "minecraft:netherite_pickaxe",
-            "minecraft:diamond_pickaxe"
-        ]
-    },
-    "CleanMobs": {
-        "Enabled": true,
-        "CleanMonstors": true,
-        "CleanPeacefulMobs": false,
-        "EnableAutoExclude": true,
-        "BlackList": [
-            "minecraft:guardian",
-            "minecraft:zombie_pigman"
-        ],
-        "Whitelist": [
+        };
+    } CleanInanimate;
+
+    struct Clean_Item {
+        bool                     Enabled    = true;
+        int                      ExistTicks = 0;
+        std::vector<std::string> Whitelist  = {
+            "minecraft:netherite_helmet",   "minecraft:netherite_sword",    "minecraft:netherite_chestplate",
+            "minecraft:diamond_helmet",     "minecraft:netherite_leggings", "minecraft:undyed_shulker_box",
+            "minecraft:netherite_boots",    "minecraft:shulker_box",        "minecraft:elytra",
+            "minecraft:dragon_egg",         "minecraft:nether_star",        "minecraft:diamond_sword",
+            "minecraft:diamond_chestplate", "minecraft:diamond_boots",      "minecraft:diamond_leggings",
+            "minecraft:diamond_hoe",        "minecraft:netherite_hoe",      "minecraft:diamond_axe",
+            "minecraft:netherite_axe",      "minecraft:netherite_pickaxe",  "minecraft:diamond_pickaxe"
+        };
+    } CleanItem;
+
+    struct Clean_Mobs {
+        bool                     Enabled           = true;
+        bool                     CleanMonstors     = true;
+        bool                     CleanPeacefulMobs = false;
+        bool                     EnableAutoExclude = true;
+        std::vector<std::string> BlackList         = {"minecraft:guardian", "minecraft:zombie_pigman"};
+        std::vector<std::string> Whitelist         = {
             "minecraft:ender_dragon",
             "minecraft:shulker",
             "minecraft:wither",
@@ -86,17 +73,19 @@ std::string defaultConfig = R"({
             "minecraft:piglin_brute",
             "minecraft:ender_pearl",
             "minecraft:phantom"
-        ]
-    },
-    "ScheduleClean": {
-        "Enabled": true,
-        "CleanInterval": 3600
-    },    
-    "VoteClean": {
-        "Enabled": true,
-        "VoteCleanCommand": "voteclean",
-        "Cooldown": 120,
-        "CheckDelay": 30,
-        "Percentage": 50   
-    }
-})";
+        };
+    } CleanMobs;
+
+    struct Schedule_Clean {
+        bool Enabled       = true;
+        int  CleanInterval = 3600;
+    } ScheduleClean;
+
+    struct Vote_Clean {
+        bool        Enabled          = true;
+        std::string VoteCleanCommand = "voteclean";
+        int         Cooldown         = 120;
+        int         CheckDelay       = 30;
+        int         Percentage       = 50;
+    } VoteClean;
+};

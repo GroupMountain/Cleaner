@@ -26,25 +26,26 @@ bool shouldIgnore(GMLIB_Actor* ac) {
 
 bool ShouldClean(Actor* actor) {
     // Players
-    auto en = (GMLIB_Actor*)actor;
+    auto& config = Cleaner::Entry::getInstance().getConfig();
+    auto  en     = (GMLIB_Actor*)actor;
     if (en->isPlayer() || shouldIgnore(en)) {
         return false;
     }
     auto type = en->getTypeName();
-    for (auto& tag : ConfigFile::mIgnoreTags) {
+    for (auto& tag : config.IgnoreTags) {
         if (en->hasTag(tag)) {
             return false;
         }
     }
     // Items
     if (en->isItemActor()) {
-        if (Config->getValue<bool>({"CleanItem", "Enabled"}, false)) {
+        if (config.CleanItem.Enabled) {
             auto itac = (ItemActor*)en;
-            if (itac->age() <= Config->getValue<int>({"CleanItem", "ExistTicks"}, 0)) {
+            if (itac->age() <= config.CleanItem.ExistTicks) {
                 return false;
             }
             auto itemType  = itac->item().getTypeName();
-            auto whitelist = Config->getValue<std::vector<std::string>>({"CleanItem", "Whitelist"}, {});
+            auto whitelist = config.CleanItem.Whitelist;
             for (auto& key : whitelist) {
                 if (isMatch(itemType, key)) {
                     return false;
@@ -56,24 +57,23 @@ bool ShouldClean(Actor* actor) {
     }
     // Mobs
     else if (en->isMob()) {
-        if (Config->getValue<bool>({"CleanMobs", "Enabled"}, false)) {
-            auto blacklist = Config->getValue<std::vector<std::string>>({"CleanMobs", "BlackList"}, {});
+        if (config.CleanMobs.Enabled) {
+            auto blacklist = config.CleanMobs.BlackList;
             for (auto& key : blacklist) {
                 if (isMatch(type, key)) {
                     return true;
                 }
             }
-            auto whitelist = Config->getValue<std::vector<std::string>>({"CleanMobs", "Whitelist"}, {});
+            auto whitelist = config.CleanMobs.Whitelist;
             for (auto& key : whitelist) {
                 if (isMatch(type, key)) {
                     return false;
                 }
             }
-            if (Config->getValue<bool>({"CleanMobs", "CleanMonstors"}, false)
-                && en->hasCategory(ActorCategory::Monster)) {
+            if (config.CleanMobs.CleanMonstors && en->hasCategory(ActorCategory::Monster)) {
                 return true;
             }
-            if (Config->getValue<bool>({"CleanMobs", "CleanPeacefulMobs"}, false)) {
+            if (config.CleanMobs.CleanPeacefulMobs) {
                 return true;
             }
         }
@@ -81,8 +81,8 @@ bool ShouldClean(Actor* actor) {
     }
     // Others
     else {
-        if (Config->getValue<bool>({"CleanInanimate", "Enabled"}, false)) {
-            auto blacklist = Config->getValue<std::vector<std::string>>({"CleanInanimate", "Blacklist"}, {});
+        if (config.CleanInanimate.Enabled) {
+            auto blacklist = config.CleanInanimate.Blacklist;
             for (auto& key : blacklist) {
                 if (isMatch(type, key)) {
                     return true;
