@@ -1,7 +1,7 @@
 #pragma once
 #include "Global.h"
 
-std::string en_US = R"({
+std::string en_US = R"(
     cleaner.info.prefix=§e§l[Cleaner] §r
     cleaner.command.cleaner=Cleaner admin command.
     cleaner.command.despawnSuccess=Successfully despawned %1$s entities.
@@ -35,9 +35,9 @@ std::string en_US = R"({
     cleaner.vote.title=Vote Cleaning
     cleaner.vote.voted=You have been voted!
     cleaner.vote.voteMessage=%1$s lunched a clean vote. If you agree cleaning entities but did not received a form, please type command /voteclean to vote.
-})";
+)";
 
-std::string zh_CN = R"({
+std::string zh_CN = R"(
     cleaner.info.prefix=§e§l[Cleaner] §r
     cleaner.command.cleaner=Cleaner管理员命令。
     cleaner.command.despawnSuccess=已成功清除了 %1$s 个实体
@@ -47,7 +47,7 @@ std::string zh_CN = R"({
     cleaner.command.mspt.output=当前服务器实MSPT %1$s
     cleaner.command.clean.output=已成功启动清理任务！
     cleaner.command.voteclean=发起实体清理投票。
-    cleaner.command.despawntime" : "已成功将物品消失时间设置为 %1$s 游戏刻
+    cleaner.command.despawntime=已成功将物品消失时间设置为 %1$s 游戏刻
     cleaner.output.count1=系统将在 %1$s 秒后自动清理服务器实体！
     cleaner.output.count2=请注意！系统将在 %1$s 秒后自动清理服务器实体！
     cleaner.output.finish=清理完成！本次总共清理了 %1$s 个实体。
@@ -71,4 +71,4 @@ std::string zh_CN = R"({
     cleaner.vote.title=投票清理
     cleaner.vote.voted=你已经投过票了！
     cleaner.vote.voteMessage=%1$s 发起了服务器实体清理投票！如果同意清理但是未收到表单，请输入命令 /voteclean 投票。拒绝清理请忽略此信息。
-})";
+)";
