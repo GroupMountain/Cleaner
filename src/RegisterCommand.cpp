@@ -13,7 +13,7 @@ void RegCleanerCommand() {
     auto& config = Cleaner::Entry::getInstance().getConfig();
     auto& cmd    = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
         config.Basic.Command,
-        I18nAPI::get("cleaner.command.cleaner"),
+        tr("cleaner.command.cleaner"),
         CommandPermissionLevel::GameDirectors
     );
     cmd.overload<CleanerParam>()
@@ -22,12 +22,12 @@ void RegCleanerCommand() {
         .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             auto ens = param.entity.results(origin);
             if (ens.empty()) {
-                return output.error(I18nAPI::get("cleaner.command.error.noTarget"));
+                return output.error(tr("cleaner.command.error.noTarget"));
             }
             for (auto en : ens) {
                 en->despawn();
             }
-            return output.success(I18nAPI::get("cleaner.command.despawnSuccess", {S(ens.size())}));
+            return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
         }>();
     cmd.overload<CleanerParam>()
         .required("action")
@@ -36,18 +36,18 @@ void RegCleanerCommand() {
             case CleanerParam::Action::clean: {
                 Cleaner::CleanTask();
                 if (Cleaner::Entry::getInstance().getConfig().Basic.ConsoleLog) {
-                    logger.info(I18nAPI::get("cleaner.output.opClean"));
+                    logger.info(tr("cleaner.output.opClean"));
                 }
                 if (Cleaner::Entry::getInstance().getConfig().Basic.SendBroadcast) {
-                    Helper::broadcastMessage(I18nAPI::get("cleaner.output.opClean"));
+                    Helper::broadcastMessage(tr("cleaner.output.opClean"));
                 }
                 if (Cleaner::Entry::getInstance().getConfig().Basic.SendToast) {
-                    Helper::broadcastToast(I18nAPI::get("cleaner.output.opClean"));
+                    Helper::broadcastToast(tr("cleaner.output.opClean"));
                 }
-                return output.success(I18nAPI::get("cleaner.command.clean.output"));
+                return output.success(tr("cleaner.command.clean.output"));
             }
             case CleanerParam::Action::tps: {
-                return output.success(I18nAPI::get(
+                return output.success(tr(
                     "cleaner.command.tps.output",
                     {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
                      S(GMLIB_Level::getLevel()->getServerAverageTps())}
@@ -55,12 +55,12 @@ void RegCleanerCommand() {
             }
             case CleanerParam::Action::mspt: {
                 return output.success(
-                    I18nAPI::get("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
+                    tr("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
                 );
             }
             case CleanerParam::Action::reload: {
                 Cleaner::reloadCleaner();
-                return output.success(I18nAPI::get("cleaner.output.reload"));
+                return output.success(tr("cleaner.output.reload"));
             }
             }
         }>();
@@ -70,14 +70,14 @@ void RegCleanerCommand() {
         .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             Cleaner::Entry::getInstance().getConfig().ItemDespawn.DespawnTime = param.ticks;
             Cleaner::Entry::getInstance().saveConfig();
-            return output.success(I18nAPI::get("cleaner.command.despawntime", {S(param.ticks)}));
+            return output.success(tr("cleaner.command.despawntime", {S(param.ticks)}));
         }>();
 };
 
 void RegVoteCommand() {
     auto& cmd = ll::command::CommandRegistrar::getInstance().getOrCreateCommand(
         Cleaner::Entry::getInstance().getConfig().VoteClean.VoteCleanCommand,
-        I18nAPI::get("cleaner.command.voteclean"),
+        tr("cleaner.command.voteclean"),
         CommandPermissionLevel::Any
     );
     cmd.overload().execute<[&](CommandOrigin const& origin, CommandOutput& output) {
@@ -85,7 +85,7 @@ void RegVoteCommand() {
             auto pl = (Player*)origin.getEntity();
             return VoteClean::voteCommandExecute(pl);
         }
-        return output.error(I18nAPI::get("cleaner.command.error.playerOnly"));
+        return output.error(tr("cleaner.command.error.playerOnly"));
     }>();
 }
 

@@ -45,3 +45,7 @@ ServerTimeScheduler& Entry::getScheduler() { return mScheduler.value(); }
 } // namespace Cleaner
 
 LL_REGISTER_PLUGIN(Cleaner::Entry, Cleaner::instance);
+
+std::string tr(std::string const& key, std::vector<std::string> const& params) {
+    return I18nAPI::get(key, params, Cleaner::Entry::getInstance().getConfig().language);
+}

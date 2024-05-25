@@ -3,7 +3,9 @@
 #include <vector>
 
 struct Config {
-    int version = 1;
+    int version = 2;
+
+    std::string language = "zh_CN";
 
     struct basic {
         std::string Command       = "cleaner";

@@ -24,10 +24,10 @@ int getPlayerCount() {
 
 void sendVoteForm(Player* pl) {
     auto fm = ll::form::ModalForm(
-        I18nAPI::get("cleaner.vote.title"),
-        I18nAPI::get("cleaner.vote.subtitle", {pl->getRealName()}),
-        I18nAPI::get("cleaner.vote.ok"),
-        I18nAPI::get("cleaner.vote.no")
+        tr("cleaner.vote.title"),
+        tr("cleaner.vote.subtitle", {pl->getRealName()}),
+        tr("cleaner.vote.ok"),
+        tr("cleaner.vote.no")
     );
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
         fm.sendTo(pl, [](Player& player, ll::form::ModalFormResult result, ll::form::FormCancelReason reason) {
@@ -35,12 +35,12 @@ void sendVoteForm(Player* pl) {
                 switch (result.value()) {
                 case ll::form::ModalFormSelectedButton::Upper: {
                     voteList[player.getUuid()] = true;
-                    player.sendMessage(I18nAPI::get("cleaner.vote.accept"));
+                    player.sendMessage(tr("cleaner.vote.accept"));
                     return;
                 }
                 case ll::form::ModalFormSelectedButton::Lower: {
                     voteList[player.getUuid()] = false;
-                    player.sendMessage(I18nAPI::get("cleaner.vote.deny"));
+                    player.sendMessage(tr("cleaner.vote.deny"));
                     return;
                 }
                 default:
@@ -64,18 +64,18 @@ void checkVote() {
     float result = ((float)voteCount) / ((float)playerCount);
     if (result >= percentage) {
         if (config.Basic.SendBroadcast) {
-            Helper::broadcastMessage(I18nAPI::get("cleaner.vote.succeed"));
+            Helper::broadcastMessage(tr("cleaner.vote.succeed"));
         }
         if (config.Basic.SendToast) {
-            Helper::broadcastToast(I18nAPI::get("cleaner.vote.succeed"));
+            Helper::broadcastToast(tr("cleaner.vote.succeed"));
         }
         Cleaner::CleanTask();
     } else {
         if (config.Basic.SendBroadcast) {
-            Helper::broadcastMessage(I18nAPI::get("cleaner.vote.failed"));
+            Helper::broadcastMessage(tr("cleaner.vote.failed"));
         }
         if (config.Basic.SendToast) {
-            Helper::broadcastToast(I18nAPI::get("cleaner.vote.failed"));
+            Helper::broadcastToast(tr("cleaner.vote.failed"));
         }
     }
     hasVote     = false;
@@ -89,10 +89,10 @@ void voteClean(Player* pl) {
     hasVote     = true;
     playerCount = getPlayerCount();
     if (config.Basic.SendBroadcast) {
-        Helper::broadcastMessage(I18nAPI::get("cleaner.vote.voteMessage", {pl->getRealName()}));
+        Helper::broadcastMessage(tr("cleaner.vote.voteMessage", {pl->getRealName()}));
     }
     if (config.Basic.SendToast) {
-        Helper::broadcastToast(I18nAPI::get("cleaner.vote.voteMessage", {pl->getRealName()}));
+        Helper::broadcastToast(tr("cleaner.vote.voteMessage", {pl->getRealName()}));
     }
     sendVoteForm(pl);
     auto cooldown = std::chrono::seconds::duration(config.VoteClean.Cooldown);
@@ -103,10 +103,10 @@ void voteClean(Player* pl) {
 
 void confirmForm(Player* pl) {
     auto fm = ll::form::ModalForm(
-        I18nAPI::get("cleaner.vote.title"),
-        I18nAPI::get("cleaner.vote.confirmTubtitle"),
-        I18nAPI::get("cleaner.vote.confirmOk"),
-        I18nAPI::get("cleaner.vote.confirmNo")
+        tr("cleaner.vote.title"),
+        tr("cleaner.vote.confirmTubtitle"),
+        tr("cleaner.vote.confirmOk"),
+        tr("cleaner.vote.confirmNo")
     );
     fm.sendTo(*pl, [](Player& player, ll::form::ModalFormResult result, ll::form::FormCancelReason reason) {
         if (result.has_value()) {
@@ -115,7 +115,7 @@ void confirmForm(Player* pl) {
                 return voteClean(&player);
             }
             case ll::form::ModalFormSelectedButton::Lower: {
-                return player.sendMessage(I18nAPI::get("cleaner.vote.cancel"));
+                return player.sendMessage(tr("cleaner.vote.cancel"));
             }
             default:
                 return;
@@ -129,14 +129,14 @@ void voteCommandExecute(Player* pl) {
         if (canVote) {
             confirmForm(pl);
         } else {
-            pl->sendMessage(I18nAPI::get("cleaner.vote.cooldown"));
+            pl->sendMessage(tr("cleaner.vote.cooldown"));
         }
     } else {
         if (voteList.count(pl->getUuid())) {
-            pl->sendMessage(I18nAPI::get("cleaner.vote.voted"));
+            pl->sendMessage(tr("cleaner.vote.voted"));
         } else {
             voteList[pl->getUuid()] = true;
-            pl->sendMessage(I18nAPI::get("cleaner.vote.accept"));
+            pl->sendMessage(tr("cleaner.vote.accept"));
         }
     }
 }
