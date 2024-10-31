@@ -15,7 +15,7 @@ bool isMatch(std::string& A, std::string& B) {
     return (A == B);
 }
 
-bool shouldIgnore(GMLIB_Actor* ac) {
+bool shouldIgnore(gmlib::world::Actor* ac) {
     if (ac->isMob() || ac->isItemActor()) {
         if (ac->isTame() || ac->isTrusting() || ac->getNameTag() != "" || ac->hasTag("cleaner:ignore")) {
             return true;
@@ -27,7 +27,7 @@ bool shouldIgnore(GMLIB_Actor* ac) {
 bool ShouldClean(Actor* actor) {
     // Players
     auto& config = Cleaner::Entry::getInstance().getConfig();
-    auto  en     = (GMLIB_Actor*)actor;
+    auto  en     = (gmlib::world::Actor*)actor;
     if (en->isPlayer() || shouldIgnore(en)) {
         return false;
     }
@@ -95,7 +95,7 @@ bool ShouldClean(Actor* actor) {
 
 int ExecuteClean() {
     int  clean_count  = 0;
-    auto all_entities = GMLIB_Level::getLevel()->getAllEntities();
+    auto all_entities = gmlib::world::Level::getLevel()->getRuntimeActorList();
     for (auto entity : all_entities) {
         if (ShouldClean(entity)) {
             entity->despawn();
@@ -107,8 +107,8 @@ int ExecuteClean() {
 
 int CountEntities() {
     int  clean_count  = 0;
-    auto all_entities = GMLIB_Level::getLevel()->getAllEntities();
-    for (auto entity : all_entities) {
+    auto all_entities = gmlib::world::Level::getLevel()->getRuntimeActorList();
+    for (auto* entity : all_entities) {
         if (ShouldClean(entity)) {
             clean_count++;
         }

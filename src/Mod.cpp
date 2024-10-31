@@ -17,9 +17,9 @@ bool Entry::enable() {
     mScheduler.emplace();
     ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
     saveConfig();
-    I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
-    I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
-    I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
+    gmlib::world::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
+    gmlib::world::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
+    gmlib::world::I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
     Cleaner::ListenEvents();
     RegisterCommands();
     Cleaner::loadCleaner();
@@ -47,5 +47,5 @@ ServerTimeScheduler& Entry::getScheduler() { return mScheduler.value(); }
 LL_REGISTER_MOD(Cleaner::Entry, Cleaner::instance);
 
 std::string tr(std::string const& key, std::vector<std::string> const& params) {
-    return I18nAPI::get(key, params, Cleaner::Entry::getInstance().getConfig().language);
+    return gmlib::world::I18nAPI::get(key, params, Cleaner::Entry::getInstance().getConfig().language);
 }
