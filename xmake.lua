@@ -11,7 +11,7 @@ end
 add_requires("levilamina")
 add_requires("gmlib")
 
-target("Cleaner") -- Change this to your plugin name.
+target("Cleaner") -- Change this to your mod name.
     add_cxflags(
         "/EHa",
         "/utf-8"
@@ -34,12 +34,12 @@ target("Cleaner") -- Change this to your plugin name.
     set_languages("cxx23")
 
     after_build(function (target)
-        local plugin_packer = import("scripts.after_build")
+        local mod_packer = import("scripts.after_build")
 
-        local plugin_define = {
-            pluginName = target:name(),
-            pluginFile = path.filename(target:targetfile()),
+        local mod_define = {
+            modName = target:name(),
+            modFile = path.filename(target:targetfile()),
         }
         
-        plugin_packer.pack_plugin(target,plugin_define)
+        mod_packer.pack_mod(target,mod_define)
     end)

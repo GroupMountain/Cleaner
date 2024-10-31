@@ -80,9 +80,9 @@ void CleanTaskTPS(float min_tps) {
     auto& config  = Cleaner::Entry::getInstance().getConfig();
     mCleanTaskTPS = Cleaner::Entry::getInstance().getScheduler().add<RepeatTask>(10s, [min_tps, &config] {
         if (auto_clean_triggerred == false) {
-            if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
+            if (gmlib::world::Level::getLevel()->getServerAverageTps() <= min_tps) {
                 auto_clean_triggerred = true;
-                auto mspt             = S(GMLIB_Level::getLevel()->getServerAverageTps());
+                auto mspt             = S(gmlib::world::Level::getLevel()->getServerAverageTps());
                 if (config.Basic.ConsoleLog) {
                     logger.warn(tr("cleaner.output.triggerAutoCleanTps", {mspt}));
                 }
