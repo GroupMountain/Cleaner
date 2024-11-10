@@ -1,6 +1,5 @@
 #include "Features/Cleaner.h"
 #include "Mod.h"
-#include "gmlib/world/Level.h"
 
 struct CleanerParam {
     enum class Despawn { despawn } despawn;
@@ -50,13 +49,13 @@ void RegCleanerCommand() {
             case CleanerParam::Action::tps: {
                 return output.success(tr(
                     "cleaner.command.tps.output",
-                    {S(gmlib::world::Level::getLevel()->getServerCurrentTps()),
-                     S(gmlib::world::Level::getLevel()->getServerAverageTps())}
+                    {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
+                     S(GMLIB_Level::getLevel()->getServerAverageTps())}
                 ));
             }
             case CleanerParam::Action::mspt: {
                 return output.success(
-                    tr("cleaner.command.mspt.output", {S(gmlib::world::Level::getLevel()->getServerMspt())})
+                    tr("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
                 );
             }
             case CleanerParam::Action::reload: {

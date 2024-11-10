@@ -9,7 +9,7 @@ end
 
 -- Option 1: Use the latest version of LeviLamina released on GitHub.
 add_requires("levilamina")
-add_requires("gmlib")
+add_requires("gmlib 0.13.7")
 
 target("Cleaner") -- Change this to your mod name.
     add_cxflags(

@@ -1,6 +1,6 @@
 #pragma once
 #include "Mod.h"
-#include <headers/include_all.h>
+#include <include_all.h>
 #include <regex>
 
 #define S(x) std::to_string(x)

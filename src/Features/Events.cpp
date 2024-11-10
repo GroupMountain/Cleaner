@@ -2,19 +2,19 @@
 
 namespace Cleaner {
 
-void setShouldIgnore(gmlib::world::Actor* ac) { ac->addTag("cleaner:ignore"); }
+void setShouldIgnore(GMLIB_Actor* ac) { ac->addTag("cleaner:ignore"); }
 
 void ListenEvents() {
     auto& eventBus = ll::event::EventBus::getInstance();
     auto& config   = Cleaner::Entry::getInstance().getConfig();
     // ItemSpawnEvent
-    eventBus.emplaceListener<gmlib::event::entity::ItemActorSpawnAfterEvent>(
-        [&config](gmlib::event::entity::ItemActorSpawnAfterEvent& event) {
+    eventBus.emplaceListener<GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent>(
+        [&config](GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent& event) {
             auto& item = event.getItemActor();
             if (event.getSpawner().has_value()) {
-                auto pl = (gmlib::world::Player*)event.getSpawner().as_ptr();
+                auto pl = (GMLIB_Player*)event.getSpawner().as_ptr();
                 if (pl->isPlayer() && !pl->isAlive()) { // Death Drop
-                    auto ac = (gmlib::world::Actor*)&item;
+                    auto ac = (GMLIB_Actor*)&item;
                     setShouldIgnore(ac);
                     return;
                 }
@@ -33,9 +33,9 @@ void ListenEvents() {
         }
     );
     // MobTakeItemEvent
-    eventBus.emplaceListener<gmlib::event::entity::MobPickupItemAfterEvent>(
-        [](gmlib::event::entity::MobPickupItemAfterEvent& event) {
-            auto mob = (gmlib::world::Actor*)&event.self();
+    eventBus.emplaceListener<GMLIB::Event::EntityEvent::MobPickupItemAfterEvent>(
+        [](GMLIB::Event::EntityEvent::MobPickupItemAfterEvent& event) {
+            auto mob = (GMLIB_Actor*)&event.self();
             setShouldIgnore(mob);
         }
     );
