@@ -1,7 +1,8 @@
 #pragma once
-#include <iostream>
+#include <string>
 #include <vector>
 
+namespace Cleaner {
 struct Config {
     int version = 2;
 
@@ -91,3 +92,4 @@ struct Config {
         int         Percentage       = 50;
     } VoteClean;
 };
+} // namespace Cleaner

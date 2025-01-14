@@ -5,8 +5,6 @@
 
 #define S(x) std::to_string(x)
 
-extern ll::Logger logger;
-
 extern void RegisterCommands();
 
 namespace Helper {

@@ -9,7 +9,8 @@ end
 
 -- Option 1: Use the latest version of LeviLamina released on GitHub.
 add_requires("levilamina")
-add_requires("gmlib 0.13.7")
+add_requires("levibuildscript")
+add_requires("gmlib")
 
 target("Cleaner") -- Change this to your mod name.
     add_cxflags(
@@ -26,9 +27,14 @@ target("Cleaner") -- Change this to your mod name.
         "levilamina",
         "gmlib"
     )
-    add_shflags(
-        "/DELAYLOAD:bedrock_server.dll"
+    add_defines(
+        "NOMINMAX", 
+        "UNICODE", 
+        "_HAS_CXX17",
+        "_HAS_CXX20",
+        "_HAS_CXX23"
     )
+    add_rules("@levibuildscript/linkrule")
     set_exceptions("none")
     set_kind("shared")
     set_languages("cxx23")
