@@ -2,18 +2,15 @@
 
 #include "Config.h"
 #include <ll/api/mod/NativeMod.h>
-#include <ll/api/schedule/Scheduler.h>
 
 namespace Cleaner {
-
-using namespace ll::schedule;
 
 class Entry {
 
 public:
     static Entry& getInstance();
 
-    Entry(ll::mod::NativeMod& self) : mSelf(self) {}
+    Entry() : mSelf(*ll::mod::NativeMod::current()) {}
 
     [[nodiscard]] ll::mod::NativeMod& getSelf() const { return mSelf; }
 
@@ -34,12 +31,9 @@ public:
 
     void saveConfig();
 
-    ServerTimeScheduler& getScheduler();
-
 private:
-    ll::mod::NativeMod&                mSelf;
-    std::optional<Config>              mConfig;
-    std::optional<ServerTimeScheduler> mScheduler;
+    ll::mod::NativeMod&   mSelf;
+    std::optional<Config> mConfig;
 };
 
 } // namespace Cleaner

@@ -1,20 +1,19 @@
+#include "Mod.h"
 #include "Features/Cleaner.h"
 #include "Global.h"
 #include "Language.h"
 
-ll::Logger logger("Cleaner");
-
 namespace Cleaner {
 
-static std::unique_ptr<Entry> instance;
-
-Entry& Entry::getInstance() { return *instance; }
+Entry& Entry::getInstance() {
+    static Entry instance;
+    return instance;
+}
 
 bool Entry::load() { return true; }
 
 bool Entry::enable() {
     mConfig.emplace();
-    mScheduler.emplace();
     ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
     saveConfig();
     I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
@@ -23,16 +22,15 @@ bool Entry::enable() {
     Cleaner::ListenEvents();
     RegisterCommands();
     Cleaner::loadCleaner();
-    logger.info("Cleaner Loaded!");
-    logger.info("Author: GroupMountain");
-    logger.info("Repository: https://github.com/GroupMountain/Cleaner");
+    getSelf().getLogger().info("Cleaner Loaded!");
+    getSelf().getLogger().info("Author: GroupMountain");
+    getSelf().getLogger().info("Repository: https://github.com/GroupMountain/Cleaner");
     return true;
 }
 
 bool Entry::disable() {
     mConfig.reset();
     Cleaner::unloadCleaner();
-    mScheduler.reset();
     return true;
 }
 
@@ -40,11 +38,9 @@ Config& Entry::getConfig() { return mConfig.value(); }
 
 void Entry::saveConfig() { ll::config::saveConfig(*mConfig, getSelf().getConfigDir() / "config.json"); }
 
-ServerTimeScheduler& Entry::getScheduler() { return mScheduler.value(); }
-
 } // namespace Cleaner
 
-LL_REGISTER_MOD(Cleaner::Entry, Cleaner::instance);
+LL_REGISTER_MOD(Cleaner::Entry, Cleaner::Entry::getInstance());
 
 std::string tr(std::string const& key, std::vector<std::string> const& params) {
     return I18nAPI::get(key, params, Cleaner::Entry::getInstance().getConfig().language);

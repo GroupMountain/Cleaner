@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "tooth": "github.com/GroupMountain/Cleaner",
-    "version": "0.13.2",
+    "version": "0.13.3",
     "info": {
         "name": "Cleaner",
         "description": "A Powerful Entities Cleaning up Mod for BDS",
@@ -13,9 +13,9 @@
             "gmlib"
         ]
     },
-    "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.13.2/Cleaner-windows-x64.zip",
+    "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.13.3/Cleaner-windows-x64.zip",
     "dependencies": {
-        "github.com/GroupMountain/GMLIB": ">=0.13.7"
+        "github.com/GroupMountain/GMLIB": ">=1.0.0-rc.3"
     },
     "files": {
         "place": [

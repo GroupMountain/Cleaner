@@ -1,5 +1,4 @@
 #include "Features/Cleaner.h"
-#include "Mod.h"
 
 struct CleanerParam {
     enum class Despawn { despawn } despawn;
@@ -19,7 +18,7 @@ void RegCleanerCommand() {
     cmd.overload<CleanerParam>()
         .required("despawn")
         .required("entity")
-        .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+        .execute([&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             auto ens = param.entity.results(origin);
             if (ens.empty()) {
                 return output.error(tr("cleaner.command.error.noTarget"));
@@ -28,15 +27,15 @@ void RegCleanerCommand() {
                 en->despawn();
             }
             return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
-        }>();
+        });
     cmd.overload<CleanerParam>()
         .required("action")
-        .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+        .execute([&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             switch (param.action) {
             case CleanerParam::Action::clean: {
                 Cleaner::CleanTask();
                 if (Cleaner::Entry::getInstance().getConfig().Basic.ConsoleLog) {
-                    logger.info(tr("cleaner.output.opClean"));
+                    ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->info(tr("cleaner.output.opClean"));
                 }
                 if (Cleaner::Entry::getInstance().getConfig().Basic.SendBroadcast) {
                     Helper::broadcastMessage(tr("cleaner.output.opClean"));
@@ -63,15 +62,15 @@ void RegCleanerCommand() {
                 return output.success(tr("cleaner.output.reload"));
             }
             }
-        }>();
+        });
     cmd.overload<CleanerParam>()
         .required("despawntime")
         .required("ticks")
-        .execute<[&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+        .execute([&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             Cleaner::Entry::getInstance().getConfig().ItemDespawn.DespawnTime = param.ticks;
             Cleaner::Entry::getInstance().saveConfig();
             return output.success(tr("cleaner.command.despawntime", {S(param.ticks)}));
-        }>();
+        });
 };
 
 void RegVoteCommand() {
@@ -80,13 +79,13 @@ void RegVoteCommand() {
         tr("cleaner.command.voteclean"),
         CommandPermissionLevel::Any
     );
-    cmd.overload().execute<[&](CommandOrigin const& origin, CommandOutput& output) {
+    cmd.overload().execute([&](CommandOrigin const& origin, CommandOutput& output) {
         if (origin.getOriginType() == CommandOriginType::Player) {
             auto pl = (Player*)origin.getEntity();
             return VoteClean::voteCommandExecute(pl);
         }
         return output.error(tr("cleaner.command.error.playerOnly"));
-    }>();
+    });
 }
 
 void RegisterCommands() {

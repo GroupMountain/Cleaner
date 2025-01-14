@@ -9,8 +9,6 @@ int  playerCount = 0;
 
 std::unordered_map<mce::UUID, bool> voteList;
 
-static std::shared_ptr<ll::schedule::task::Task<ll::chrono::ServerClock>> mAutoCleanTask;
-
 int getPlayerCount() {
     int result = 0;
     ll::service::getLevel()->forEachPlayer([&](Player& pl) -> bool {
@@ -95,10 +93,16 @@ void voteClean(Player* pl) {
         Helper::broadcastToast(tr("cleaner.vote.voteMessage", {pl->getRealName()}));
     }
     sendVoteForm(pl);
-    auto cooldown = std::chrono::seconds::duration(config.VoteClean.Cooldown);
-    auto waitTime = std::chrono::seconds::duration(config.VoteClean.CheckDelay);
-    Cleaner::Entry::getInstance().getScheduler().add<DelayTask>(cooldown, [] { canVote = false; });
-    Cleaner::Entry::getInstance().getScheduler().add<DelayTask>(waitTime, [] { checkVote(); });
+    ll::coro::keepThis([&config]() -> ll::coro::CoroTask<> {
+        co_await std::chrono::seconds::duration(config.VoteClean.Cooldown);
+        canVote = true;
+        co_return;
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
+    ll::coro::keepThis([&config]() -> ll::coro::CoroTask<> {
+        co_await std::chrono::seconds::duration(config.VoteClean.CheckDelay);
+        checkVote();
+        co_return;
+    }).launch(ll::thread::ServerThreadExecutor::getDefault());
 }
 
 void confirmForm(Player* pl) {
