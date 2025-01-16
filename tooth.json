@@ -15,7 +15,7 @@
     },
     "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.13.3/Cleaner-windows-x64.zip",
     "dependencies": {
-        "github.com/GroupMountain/GMLIB": ">=1.0.0-rc.3"
+        "github.com/GroupMountain/GMLIB": ">=0.13.10"
     },
     "files": {
         "place": [
