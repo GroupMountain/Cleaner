@@ -1,4 +1,5 @@
 #include "Cleaner.h"
+#include "mc/world/actor/provider/SynchedActorDataAccess.h"
 
 namespace Cleaner {
 
@@ -15,9 +16,11 @@ bool isMatch(std::string& A, std::string& B) {
     return (A == B);
 }
 
-bool shouldIgnore(GMLIB_Actor* ac) {
-    if (ac->isMob() || ac->isItemActor()) {
-        if (ac->isTame() || ac->isTrusting() || ac->getNameTag() != "" || ac->hasTag("cleaner:ignore")) {
+bool isTrust(Actor* ac) { return SynchedActorDataAccess::getActorFlag(ac->getEntityContext(), ::ActorFlags::Trusting); }
+
+bool shouldIgnore(gmlib::world::actor::GMActor* ac) {
+    if (ac->hasCategory(::ActorCategory::Mob) || ac->hasCategory(::ActorCategory::Item)) {
+        if (ac->isTame() || isTrust(ac) || ac->getNameTag() != "" || ac->hasTag("cleaner:ignore")) {
             return true;
         }
     }
@@ -27,7 +30,7 @@ bool shouldIgnore(GMLIB_Actor* ac) {
 bool ShouldClean(Actor* actor) {
     // Players
     auto& config = Cleaner::Entry::getInstance().getConfig();
-    auto  en     = (GMLIB_Actor*)actor;
+    auto  en     = (gmlib::world::actor::GMActor*)actor;
     if (en->isPlayer() || shouldIgnore(en)) {
         return false;
     }
@@ -38,7 +41,7 @@ bool ShouldClean(Actor* actor) {
         }
     }
     // Items
-    if (en->isItemActor()) {
+    if (en->hasCategory(::ActorCategory::Item)) {
         if (config.CleanItem.Enabled) {
             auto itac = (ItemActor*)en;
             if (itac->age() <= config.CleanItem.ExistTicks) {
@@ -56,7 +59,7 @@ bool ShouldClean(Actor* actor) {
         return false;
     }
     // Mobs
-    else if (en->isMob()) {
+    else if (en->hasCategory(::ActorCategory::Mob)) {
         if (config.CleanMobs.Enabled) {
             auto blacklist = config.CleanMobs.BlackList;
             for (auto& key : blacklist) {
@@ -94,8 +97,9 @@ bool ShouldClean(Actor* actor) {
 }
 
 int ExecuteClean() {
+    auto level        = ll::service::getLevel();
     int  clean_count  = 0;
-    auto all_entities = GMLIB_Level::getLevel()->getRuntimeActorList();
+    auto all_entities = level->getRuntimeActorList();
     for (auto entity : all_entities) {
         if (ShouldClean(entity)) {
             entity->despawn();
@@ -106,8 +110,9 @@ int ExecuteClean() {
 }
 
 int CountEntities() {
+    auto level        = ll::service::getLevel();
     int  clean_count  = 0;
-    auto all_entities = GMLIB_Level::getLevel()->getRuntimeActorList();
+    auto all_entities = level->getRuntimeActorList();
     for (auto* entity : all_entities) {
         if (ShouldClean(entity)) {
             clean_count++;

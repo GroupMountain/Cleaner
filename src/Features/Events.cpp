@@ -1,44 +1,39 @@
 #include "Cleaner.h"
 
 namespace Cleaner {
-
-void setShouldIgnore(GMLIB_Actor* ac) { ac->addTag("cleaner:ignore"); }
+void setShouldIgnore(gmlib::world::actor::GMActor* ac) { ac->addTag("cleaner:ignore"); }
 
 void ListenEvents() {
     auto& eventBus = ll::event::EventBus::getInstance();
     auto& config   = Cleaner::Entry::getInstance().getConfig();
     // ItemSpawnEvent
-    eventBus.emplaceListener<GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent>(
-        [&config](GMLIB::Event::EntityEvent::ItemActorSpawnAfterEvent& event) {
-            auto& item = event.getItemActor();
-            if (event.getSpawner().has_value()) {
-                auto pl = (GMLIB_Player*)event.getSpawner().as_ptr();
-                if (pl->isPlayer() && !pl->isAlive()) { // Death Drop
-                    auto ac = (GMLIB_Actor*)&item;
-                    setShouldIgnore(ac);
+    eventBus.emplaceListener<ila::mc::SpawnItemActorAfterEvent>([&config](ila::mc::SpawnItemActorAfterEvent& event) {
+        auto& item = event.itemActor();
+        if (event.spawner()) {
+            auto pl = (gmlib::world::actor::GMPlayer*)event.spawner();
+            if (pl->isPlayer() && !pl->isAlive()) { // Death Drop
+                auto ac = (gmlib::world::actor::GMActor*)&item;
+                setShouldIgnore(ac);
+                return;
+            }
+        }
+        if (config.ItemDespawn.Enabled) {
+            item->lifeTime() = config.ItemDespawn.DespawnTime;
+            auto list        = config.ItemDespawn.WhiteList;
+            auto type        = item->item().getTypeName();
+            for (auto& key : list) {
+                if (isMatch(type, key)) {
                     return;
                 }
             }
-            if (config.ItemDespawn.Enabled) {
-                item.lifeTime() = config.ItemDespawn.DespawnTime;
-                auto list       = config.ItemDespawn.WhiteList;
-                auto type       = item.item().getTypeName();
-                for (auto& key : list) {
-                    if (isMatch(type, key)) {
-                        return;
-                    }
-                }
-                item.lifeTime() = config.ItemDespawn.DespawnTime;
-            }
+            item->lifeTime() = config.ItemDespawn.DespawnTime;
         }
-    );
+    });
     // MobTakeItemEvent
-    eventBus.emplaceListener<GMLIB::Event::EntityEvent::MobPickupItemAfterEvent>(
-        [](GMLIB::Event::EntityEvent::MobPickupItemAfterEvent& event) {
-            auto mob = (GMLIB_Actor*)&event.self();
-            setShouldIgnore(mob);
-        }
-    );
+    eventBus.emplaceListener<ila::mc::ActorPickupItemAfterEvent>([](ila::mc::ActorPickupItemAfterEvent& event) {
+        auto mob = (gmlib::world::actor::GMActor*)&event.self();
+        setShouldIgnore(mob);
+    });
 }
 
 } // namespace Cleaner

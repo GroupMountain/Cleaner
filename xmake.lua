@@ -2,6 +2,7 @@ add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 add_repositories("liteldev-repo https://github.com/LiteLDev/xmake-repo.git")
 add_repositories("groupmountain-repo https://github.com/GroupMountain/xmake-repo.git")
+add_repositories("miracleforest https://github.com/MiracleForest/xmake-repo")
 
 if not has_config("vs_runtime") then
     set_runtimes("MD")
@@ -11,6 +12,7 @@ end
 add_requires("levilamina")
 add_requires("levibuildscript")
 add_requires("gmlib")
+add_requires("ilistenattentively")
 
 target("Cleaner") -- Change this to your mod name.
     add_cxflags(
@@ -25,7 +27,8 @@ target("Cleaner") -- Change this to your mod name.
     )
     add_packages(
         "levilamina",
-        "gmlib"
+        "gmlib",
+        "ilistenattentively"
     )
     add_defines(
         "NOMINMAX", 

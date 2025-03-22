@@ -10,11 +10,11 @@ static std::shared_ptr<bool> mCleanTaskTPS   = std::make_shared<bool>(false);
 bool auto_clean_triggerred = false;
 
 void CleanTask() {
-    auto& config        = Cleaner::Entry::getInstance().getConfig();
-    auto  time          = config.Basic.Notice1;
-    auto  announce_time = config.Basic.Notice2;
-    auto  time_1        = std::chrono::seconds::duration(time);
-    auto  time_2        = std::chrono::seconds::duration(time - announce_time);
+    auto&                config        = Cleaner::Entry::getInstance().getConfig();
+    auto                 time          = config.Basic.Notice1;
+    auto                 announce_time = config.Basic.Notice2;
+    std::chrono::seconds time_1(time);
+    std::chrono::seconds time_2(time - announce_time);
     if (config.Basic.ConsoleLog) {
         ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->info(
             tr("cleaner.output.count1", {S(time_1.count())})
@@ -59,7 +59,7 @@ void CleanTask() {
 }
 
 void AutoCleanTask(int seconds) {
-    auto time = std::chrono::seconds::duration(seconds);
+    std::chrono::seconds time(seconds);
     *mAutoCleanTask = true;
     ll::coro::keepThis([time]() -> ll::coro::CoroTask<> {
         while (true) {
@@ -72,7 +72,7 @@ void AutoCleanTask(int seconds) {
 }
 
 void CleanTaskCount(int max_entities) {
-    auto& config = Cleaner::Entry::getInstance().getConfig();
+    auto& config     = Cleaner::Entry::getInstance().getConfig();
     *mCleanTaskCount = true;
     ll::coro::keepThis([max_entities, &config]() -> ll::coro::CoroTask<> {
         while (true) {
@@ -83,7 +83,9 @@ void CleanTaskCount(int max_entities) {
                 if (count >= max_entities) {
                     auto_clean_triggerred = true;
                     if (config.Basic.ConsoleLog) {
-                        ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
+                        ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(
+                            tr("cleaner.output.triggerAutoCleanCount", {S(count)})
+                        );
                     }
                     if (config.Basic.SendBroadcast) {
                         Helper::broadcastMessage(tr("cleaner.output.triggerAutoCleanCount", {S(count)}));
@@ -100,16 +102,16 @@ void CleanTaskCount(int max_entities) {
 }
 
 void CleanTaskTPS(float min_tps) {
-    auto& config = Cleaner::Entry::getInstance().getConfig();
+    auto& config   = Cleaner::Entry::getInstance().getConfig();
     *mCleanTaskTPS = true;
     ll::coro::keepThis([min_tps, &config]() -> ll::coro::CoroTask<> {
         while (true) {
             co_await 10s;
             if (*mCleanTaskTPS == false) co_return;
             if (auto_clean_triggerred == false) {
-                if (GMLIB_Level::getLevel()->getServerAverageTps() <= min_tps) {
+                if (gmlib::world::GMLevel::getInstance()->getServerAverageTps() <= min_tps) {
                     auto_clean_triggerred = true;
-                    auto mspt             = S(GMLIB_Level::getLevel()->getServerAverageTps());
+                    auto mspt             = S(gmlib::world::GMLevel::getInstance()->getServerAverageTps());
                     if (config.Basic.ConsoleLog) {
                         ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(
                             tr("cleaner.output.triggerAutoCleanTps", {mspt})

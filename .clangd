@@ -1,5 +1,23 @@
 Diagnostics:
-  Suppress: ["-Wmicrosoft-enum-forward-reference", "-Wc++11-narrowing", "-Wc++2b-extensions", "-Wmicrosoft-cast"]
+  Suppress:
+    - "-Wmicrosoft-enum-forward-reference"
+    - "-Wc++11-narrowing"
+    - "-Wc++2b-extensions"
+    - "-Wmicrosoft-cast"
+    - "-Wcxx20_deducing_this"
+    - "-Wundefined_internal_type"
+    - "-Wincomplete_member_access"
+    - "-Wsizeof_alignof_incomplete_or_sizeless_type"
+    - "-Wexplicit_spec_non_template"
+    - "-Wovl_no_viable_function_in_init"
 CompileFlags:
-  Add: ["-ferror-limit=0", "-D__FUNCTION__=\"dummy\"", "-D_CRT_USE_BUILTIN_OFFSETOF", "-std=c++23"]
-  Remove: ["/Yu_HeaderOutputPredefine.h", "/FI_HeaderOutputPredefine.h"]
+  Add:
+    - "-Xclang"
+    - "-triple=x86_64-windows-msvc"
+    - "-ferror-limit=0"
+    - '-D__FUNCTION__="dummy"'
+    - "-Dnsel_CONFIG_SELECT_EXPECTED=nsel_EXPECTED_NONSTD"
+    - "-Xclang"
+    - "-std=c++23"
+  Remove:
+    - "-std"

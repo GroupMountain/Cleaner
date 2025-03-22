@@ -1,7 +1,11 @@
 #pragma once
+// IWYU pragma: begin_exports
 #include "Mod.h"
-#include <include_all.h>
+#include "gmlib/include_lib.h"
+#include "gmlib/include_ll.h"
+#include "ila/include_all.h"
 #include <regex>
+// IWYU pragma: end_exports
 
 #define S(x) std::to_string(x)
 

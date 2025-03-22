@@ -15,10 +15,8 @@ void RegCleanerCommand() {
         tr("cleaner.command.cleaner"),
         CommandPermissionLevel::GameDirectors
     );
-    cmd.overload<CleanerParam>()
-        .required("despawn")
-        .required("entity")
-        .execute([&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+    cmd.overload<CleanerParam>().required("despawn").required("entity").execute(
+        [&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             auto ens = param.entity.results(origin);
             if (ens.empty()) {
                 return output.error(tr("cleaner.command.error.noTarget"));
@@ -27,10 +25,10 @@ void RegCleanerCommand() {
                 en->despawn();
             }
             return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
-        });
-    cmd.overload<CleanerParam>()
-        .required("action")
-        .execute([&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
+        }
+    );
+    cmd.overload<CleanerParam>().required("action").execute(
+        [&](CommandOrigin const& origin, CommandOutput& output, CleanerParam const& param) {
             switch (param.action) {
             case CleanerParam::Action::clean: {
                 Cleaner::CleanTask();
@@ -46,15 +44,15 @@ void RegCleanerCommand() {
                 return output.success(tr("cleaner.command.clean.output"));
             }
             case CleanerParam::Action::tps: {
-                return output.success(tr(
-                    "cleaner.command.tps.output",
-                    {S(GMLIB_Level::getLevel()->getServerCurrentTps()),
-                     S(GMLIB_Level::getLevel()->getServerAverageTps())}
-                ));
+                return output.success(
+                    tr("cleaner.command.tps.output",
+                       {S(gmlib::world::GMLevel::getInstance()->getServerCurrentTps()),
+                        S(gmlib::world::GMLevel::getInstance()->getServerAverageTps())})
+                );
             }
             case CleanerParam::Action::mspt: {
                 return output.success(
-                    tr("cleaner.command.mspt.output", {S(GMLIB_Level::getLevel()->getServerMspt())})
+                    tr("cleaner.command.mspt.output", {S(gmlib::world::GMLevel::getInstance()->getServerMspt())})
                 );
             }
             case CleanerParam::Action::reload: {
@@ -62,7 +60,8 @@ void RegCleanerCommand() {
                 return output.success(tr("cleaner.output.reload"));
             }
             }
-        });
+        }
+    );
     cmd.overload<CleanerParam>()
         .required("despawntime")
         .required("ticks")
