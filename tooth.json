@@ -1,28 +1,48 @@
 {
-    "format_version": 2,
-    "tooth": "github.com/GroupMountain/Cleaner",
-    "version": "0.13.3",
-    "info": {
-        "name": "Cleaner",
-        "description": "A Powerful Entities Cleaning up Mod for BDS",
-        "author": "GroupMountain",
-        "source": "github.com/GroupMountain/Cleaner",
-        "tags": [
-            "levilamina",
-            "cleaner",
-            "gmlib"
-        ]
-    },
-    "asset_url": "https://github.com/GroupMountain/Cleaner/releases/download/v0.13.3/Cleaner-windows-x64.zip",
-    "dependencies": {
-        "github.com/GroupMountain/GMLIB": ">=0.13.10"
-    },
-    "files": {
-        "place": [
+  "format_version": 3,
+  "format_uuid": "289f771f-2c9a-4d73-9f3f-8492495a924d",
+  "tooth": "github.com/GroupMountain/Cleaner",
+  "version": "0.13.4",
+  "info": {
+    "name": "Cleaner",
+    "description": "A Powerful Entities Cleaning up Mod for BDS",
+    "tags": ["levilamina", "cleaner", "gmlib"],
+    "avatar_url": ""
+  },
+  "variants": [
+    {
+      "label": "",
+      "platform": "win-x64",
+      "dependencies": {
+        "github.com/GroupMountain/GMLIB": ">= 1.0.0"
+      },
+      "assets": [
+        {
+          "type": "zip",
+          "urls": [
+            "https://github.com/GroupMountain/Cleaner/releases/download/v0.13.4/Cleaner-windows-x64.zip"
+          ],
+          "placements": [
             {
-                "src": "Cleaner/*",
-                "dest": "mods/Cleaner"
+              "type": "dir",
+              "src": "Cleaner/",
+              "dest": "plugins/Cleaner"
             }
-        ]
+          ]
+        }
+      ],
+      "preserve_files": [],
+      "remove_files": [],
+      "scripts": {
+        "pre_install": [],
+        "install": [],
+        "post_install": [],
+        "pre_pack": [],
+        "post_pack": [],
+        "pre_uninstall": [],
+        "uninstall": [],
+        "post_uninstall": []
+      }
     }
+  ]
 }
