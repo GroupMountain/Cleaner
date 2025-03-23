@@ -14,7 +14,8 @@
       "label": "",
       "platform": "win-x64",
       "dependencies": {
-        "github.com/GroupMountain/GMLIB": ">= 1.0.0"
+        "github.com/GroupMountain/GMLIB": ">= 1.0.0",
+        "github.com/MiracleForest/iListenAttentively-Release": ">= 0.4.0"
       },
       "assets": [
         {
