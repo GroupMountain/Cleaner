@@ -15,6 +15,7 @@ bool Entry::load() { return true; }
 bool Entry::enable() {
     mConfig.emplace();
     ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
+    
     saveConfig();
     gmlib::locale::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
     gmlib::locale::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);

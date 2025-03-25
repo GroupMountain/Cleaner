@@ -91,5 +91,10 @@ struct Config {
         int         CheckDelay       = 30;
         int         Percentage       = 50;
     } VoteClean;
+
+    struct Unload_Actor_Clean {
+        bool                     Enabled   = false;
+        std::vector<std::string> CleanList = {"minecraft:iron_golem", "minecraft:zombie_pigman"};
+    } UnloadActorClean;
 };
 } // namespace Cleaner

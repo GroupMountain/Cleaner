@@ -4,6 +4,9 @@ namespace Cleaner {
 
 void loadCleaner() {
     auto& config = Cleaner::Entry::getInstance().getConfig();
+    if(config.UnloadActorClean.Enabled){
+        UnloadActorClean::cleanUnloadActor();
+    }
     if (config.ScheduleClean.Enabled) {
         Cleaner::AutoCleanTask(config.ScheduleClean.CleanInterval);
     }

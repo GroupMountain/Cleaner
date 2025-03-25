@@ -27,3 +27,9 @@ namespace VoteClean {
 extern void voteCommandExecute(Player* pl);
 
 }
+
+namespace UnloadActorClean {
+
+extern void cleanUnloadActor();
+
+}
