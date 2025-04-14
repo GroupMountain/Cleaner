@@ -5,8 +5,8 @@
 namespace UnloadActorClean {
 void cleanUnloadActor() {
     auto& config = Cleaner::Entry::getInstance().getConfig();
-    gmlib::world::actor::UnloadedActor::foreachUnloadedActor(
-        [config](gmlib::world::actor::UnloadedActor& actor) -> bool {
+    gmlib::UnloadedActor::foreachUnloadedActor(
+        [config](gmlib::UnloadedActor& actor) -> bool {
             for (auto& actorname : config.UnloadActorClean.CleanList) {
                 if (actor.getTypeName() == actorname) {
                     actor.remove();

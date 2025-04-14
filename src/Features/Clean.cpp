@@ -18,7 +18,7 @@ bool isMatch(std::string& A, std::string& B) {
 
 bool isTrust(Actor* ac) { return SynchedActorDataAccess::getActorFlag(ac->getEntityContext(), ::ActorFlags::Trusting); }
 
-bool shouldIgnore(gmlib::world::actor::GMActor* ac) {
+bool shouldIgnore(gmlib::GMActor* ac) {
     if (ac->hasCategory(::ActorCategory::Mob) || ac->hasCategory(::ActorCategory::Item)) {
         if (ac->isTame() || isTrust(ac) || ac->getNameTag() != "" || ac->hasTag("cleaner:ignore")) {
             return true;
@@ -30,7 +30,7 @@ bool shouldIgnore(gmlib::world::actor::GMActor* ac) {
 bool ShouldClean(Actor* actor) {
     // Players
     auto& config = Cleaner::Entry::getInstance().getConfig();
-    auto  en     = (gmlib::world::actor::GMActor*)actor;
+    auto  en     = (gmlib::GMActor*)actor;
     if (en->isPlayer() || shouldIgnore(en)) {
         return false;
     }

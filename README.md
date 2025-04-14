@@ -101,6 +101,13 @@
         "Cooldown": 120, // 投票冷却时间 单位:秒
         "CheckDelay": 30, // 投票时长 单位:秒
         "Percentage": 50 // 投票百分比(大于此值则清理)
+    },
+    "UnloadActorClean": { // 离线实体清理
+        "Enabled": false, // 是否启用
+        "CleanList": [ // 清理实体列表
+            "minecraft:iron_golem", // 铁傀儡
+            "minecraft:zombie_pigman" // 僵尸猪灵
+        ]
     }
 }
 ```

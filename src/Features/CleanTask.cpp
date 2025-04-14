@@ -109,9 +109,9 @@ void CleanTaskTPS(float min_tps) {
             co_await 10s;
             if (*mCleanTaskTPS == false) co_return;
             if (auto_clean_triggerred == false) {
-                if (gmlib::world::GMLevel::getInstance()->getServerAverageTps() <= min_tps) {
+                if (gmlib::GMLevel::getInstance()->getServerAverageTps() <= min_tps) {
                     auto_clean_triggerred = true;
-                    auto mspt             = S(gmlib::world::GMLevel::getInstance()->getServerAverageTps());
+                    auto mspt             = S(gmlib::GMLevel::getInstance()->getServerAverageTps());
                     if (config.Basic.ConsoleLog) {
                         ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(
                             tr("cleaner.output.triggerAutoCleanTps", {mspt})

@@ -46,13 +46,13 @@ void RegCleanerCommand() {
             case CleanerParam::Action::tps: {
                 return output.success(
                     tr("cleaner.command.tps.output",
-                       {S(gmlib::world::GMLevel::getInstance()->getServerCurrentTps()),
-                        S(gmlib::world::GMLevel::getInstance()->getServerAverageTps())})
+                       {S(gmlib::GMLevel::getInstance()->getServerCurrentTps()),
+                        S(gmlib::GMLevel::getInstance()->getServerAverageTps())})
                 );
             }
             case CleanerParam::Action::mspt: {
                 return output.success(
-                    tr("cleaner.command.mspt.output", {S(gmlib::world::GMLevel::getInstance()->getServerMspt())})
+                    tr("cleaner.command.mspt.output", {S(gmlib::GMLevel::getInstance()->getServerMspt())})
                 );
             }
             case CleanerParam::Action::reload: {

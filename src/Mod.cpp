@@ -2,6 +2,7 @@
 #include "Features/Cleaner.h"
 #include "Global.h"
 #include "Language.h"
+#include "ll/api/utils/ErrorUtils.h"
 
 namespace Cleaner {
 
@@ -14,12 +15,15 @@ bool Entry::load() { return true; }
 
 bool Entry::enable() {
     mConfig.emplace();
-    ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
-    
+    try {
+        ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
+    } catch (...) {
+        ll::error_utils::printCurrentException(getSelf().getLogger());
+    }
     saveConfig();
-    gmlib::locale::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
-    gmlib::locale::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
-    gmlib::locale::I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
+    gmlib::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
+    gmlib::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
+    gmlib::I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
     Cleaner::ListenEvents();
     RegisterCommands();
     Cleaner::loadCleaner();
@@ -44,5 +48,5 @@ void Entry::saveConfig() { ll::config::saveConfig(*mConfig, getSelf().getConfigD
 LL_REGISTER_MOD(Cleaner::Entry, Cleaner::Entry::getInstance());
 
 std::string tr(std::string const& key, std::vector<std::string> const& params) {
-    return gmlib::locale::I18nAPI::get(key, params);
+    return gmlib::I18nAPI::get(key, params);
 }
