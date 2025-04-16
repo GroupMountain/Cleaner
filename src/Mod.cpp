@@ -24,6 +24,7 @@ bool Entry::enable() {
     gmlib::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
     gmlib::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
     gmlib::I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
+    gmlib::I18nAPI::chooseLanguage(mConfig->language);
     Cleaner::ListenEvents();
     RegisterCommands();
     Cleaner::loadCleaner();
