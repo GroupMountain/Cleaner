@@ -39,6 +39,7 @@ target("Cleaner") -- Change this to your mod name.
     set_exceptions("none")
     set_kind("shared")
     set_languages("cxx20")
+    set_symbols("debug")
 
     after_build(function (target)
         local mod_packer = import("scripts.after_build")

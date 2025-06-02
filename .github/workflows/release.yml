@@ -16,7 +16,8 @@ jobs:
 
       - uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: 2.9.9
+          
       - run: |
           xmake repo -u
 
