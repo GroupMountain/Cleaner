@@ -9,10 +9,10 @@ if not has_config("vs_runtime") then
 end
 
 -- Option 1: Use the latest version of LeviLamina released on GitHub.
-add_requires("levilamina 1.3.2")
-add_requires("levibuildscript 0.4.1")
-add_requires("gmlib 1.3.0")
-add_requires("ilistenattentively 0.6.0")
+add_requires("levilamina 1.4.1")
+add_requires("levibuildscript")
+add_requires("gmlib 1.4.0")
+add_requires("ilistenattentively 0.7.0")
 
 target("Cleaner") -- Change this to your mod name.
     add_cxflags(
