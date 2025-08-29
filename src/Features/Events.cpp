@@ -18,7 +18,7 @@ void ListenEvents() {
             }
         }
         if (config.ItemDespawn.Enabled) {
-            item.lifeTime() = config.ItemDespawn.DespawnTime;
+            // item.lifeTime() = config.ItemDespawn.DespawnTime;
             auto list        = config.ItemDespawn.WhiteList;
             auto type        = item.item().getTypeName();
             for (auto& key : list) {
