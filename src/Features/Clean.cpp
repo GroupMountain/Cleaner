@@ -1,6 +1,6 @@
 #include "Cleaner.h"
 #include "mc/world/actor/provider/SynchedActorDataAccess.h"
-
+#include "gmlib/mc/world/actor/Actor.h"
 namespace Cleaner {
 
 bool isMatch(std::string& A, std::string& B) {

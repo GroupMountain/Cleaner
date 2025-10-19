@@ -94,12 +94,12 @@ void voteClean(Player* pl) {
     }
     sendVoteForm(pl);
     ll::coro::keepThis([&config]() -> ll::coro::CoroTask<> {
-        co_await std::chrono::seconds::duration(config.VoteClean.Cooldown);
+        co_await std::chrono::seconds(config.VoteClean.Cooldown);
         canVote = true;
         co_return;
     }).launch(ll::thread::ServerThreadExecutor::getDefault());
     ll::coro::keepThis([&config]() -> ll::coro::CoroTask<> {
-        co_await std::chrono::seconds::duration(config.VoteClean.CheckDelay);
+        co_await std::chrono::seconds(config.VoteClean.CheckDelay);
         checkVote();
         co_return;
     }).launch(ll::thread::ServerThreadExecutor::getDefault());

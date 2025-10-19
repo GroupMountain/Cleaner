@@ -1,5 +1,6 @@
 #include "Features/Cleaner.h"
-
+#include "gmlib/mc/world/Level.h"
+#include "gmlib/gm/data/TpsStatus.h"
 struct CleanerParam {
     enum class Despawn { despawn } despawn;
     enum class Action { tps, clean, reload, mspt } action;
@@ -47,7 +48,7 @@ void RegCleanerCommand() {
                 return output.success(
                     tr("cleaner.command.tps.output",
                        {S(gmlib::GMLevel::getInstance()->getServerCurrentTps()),
-                        S(gmlib::GMLevel::getInstance()->getServerAverageTps())})
+                        S(gmlib::TpsStatus::getInstance().getLevelAverageTps())})
                 );
             }
             case CleanerParam::Action::mspt: {

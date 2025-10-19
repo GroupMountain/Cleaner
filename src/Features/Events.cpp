@@ -1,5 +1,6 @@
 #include "Cleaner.h"
-
+#include "gmlib/mc/world/Level.h"
+#include "gmlib/mc/world/actor/Player.h"
 namespace Cleaner {
 void setShouldIgnore(gmlib::GMActor* ac) { ac->addTag("cleaner:ignore"); }
 

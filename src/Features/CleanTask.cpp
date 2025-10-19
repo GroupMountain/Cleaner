@@ -1,6 +1,7 @@
 #include "Cleaner.h"
 #include <memory>
-
+#include "gmlib/mc/world/Level.h"
+#include "gmlib/gm/data/TpsStatus.h"
 namespace Cleaner {
 
 static std::shared_ptr<bool> mAutoCleanTask  = std::make_shared<bool>(false);
@@ -109,9 +110,9 @@ void CleanTaskTPS(float min_tps) {
             co_await 10s;
             if (*mCleanTaskTPS == false) co_return;
             if (auto_clean_triggerred == false) {
-                if (gmlib::GMLevel::getInstance()->getServerAverageTps() <= min_tps) {
+                if (gmlib::TpsStatus::getInstance().getLevelAverageTps() <= min_tps) {
                     auto_clean_triggerred = true;
-                    auto mspt             = S(gmlib::GMLevel::getInstance()->getServerAverageTps());
+                    auto mspt             = S(gmlib::TpsStatus::getInstance().getLevelAverageTps());
                     if (config.Basic.ConsoleLog) {
                         ll::io::LoggerRegistry::getInstance().getOrCreate("Cleaner")->warn(
                             tr("cleaner.output.triggerAutoCleanTps", {mspt})

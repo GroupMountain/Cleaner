@@ -3,7 +3,7 @@
 #include "Global.h"
 #include "Language.h"
 #include "ll/api/utils/ErrorUtils.h"
-
+#include "gmlib/mc/locale/I18nAPI.h"
 namespace Cleaner {
 
 Entry& Entry::getInstance() {
