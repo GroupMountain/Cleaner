@@ -2,7 +2,7 @@
     "name": "${modName}",
     "entry": "${modFile}",
     "type": "native",
-    "version": "0.13.8",
+    "version": "0.13.9",
     "author": "GroupMountain",
     "description": "Clean Entities",
     "dependencies": [

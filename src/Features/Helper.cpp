@@ -1,5 +1,5 @@
 #include "Global.h"
-
+#include "gmlib/mc/world/Level.h"
 namespace Helper {
 
 void broadcastMessage(std::string_view msg) {
