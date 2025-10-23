@@ -4,6 +4,8 @@
 #include "Language.h"
 #include "ll/api/utils/ErrorUtils.h"
 #include "gmlib/mc/locale/I18nAPI.h"
+#include "gmlib/gm/data/TpsStatus.h"
+
 namespace Cleaner {
 
 Entry& Entry::getInstance() {
@@ -14,6 +16,7 @@ Entry& Entry::getInstance() {
 bool Entry::load() { return true; }
 
 bool Entry::enable() {
+    (void)gmlib::TpsStatus::getInstance();
     mConfig.emplace();
     try {
         ll::config::loadConfig(*mConfig, getSelf().getConfigDir() / "config.json");
