@@ -105,7 +105,7 @@ void ConfirmForm(Player& player, bool isOnline, const std::string& TypeName, boo
                     OfflineEntity.isUpdating.store(false);
                 }).detach();
             } else {
-                player.sendMessage(tr(""));
+                player.sendMessage(tr("cleaner.confirm.unload.warn"));
             }
         }
     });
