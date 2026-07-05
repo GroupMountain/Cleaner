@@ -25,7 +25,7 @@ struct {
     ll::SmallDenseSet<ActorUniqueID>      waitedPlayers{};
     std::atomic_bool                      requireUpdate{false};
 
-    std::mutex                            offlineEntitiesMutex; // ✅ 新增
+    std::mutex                            offlineEntitiesMutex;
 } OfflineEntity;
 
 auto typeNameToLocString(std::string const& typeName) {
