@@ -4,7 +4,7 @@
 #include "mc/server/commands/CommandOutput.h"
 struct CleanerParam {
     enum class Despawn { despawn } despawn;
-    enum class Action { tps, clean, reload, mspt } action;
+    enum class Action { gui ,tps, clean, reload, mspt } action;
     enum class DespawnTime { despawntime } despawntime;
     int                    ticks;
     CommandSelector<Actor> entity;
@@ -24,6 +24,14 @@ void RegCleanerCommand() {
                 return output.error(tr("cleaner.command.error.noTarget"));
             }
             for (auto en : ens) {
+                /*NO NEED
+                 *Tip: Player don't exit through normal logic when despawn player
+                 *That may cause other plugins crash,causing Levilamina crash
+                 *if (en->hasCategory(ActorCategory::Player)) {
+                    auto pl=(Player*)en;
+                    pl->disconnect("You've been despawn by Cleaner");
+                    continue;
+                }*/
                 en->despawn();
             }
             return output.success(tr("cleaner.command.despawnSuccess", {S(ens.size())}));
@@ -61,6 +69,10 @@ void RegCleanerCommand() {
                 Cleaner::reloadCleaner();
                 return output.success(tr("cleaner.output.reload"));
             }
+            case CleanerParam::Action::gui:
+                if (origin.getOriginType()==CommandOriginType::Player)
+                    MainForm((Player*)origin.getEntity());
+                break;
             }
         }
     );

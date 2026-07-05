@@ -3,6 +3,8 @@
 #include "Global.h"
 #include "Language.h"
 #include "ll/api/utils/ErrorUtils.h"
+#include "ll/api/memory/Hook.h"
+#include "mc/world/actor/Actor.h"
 #include "gmlib/mc/locale/I18nAPI.h"
 #include "gmlib/gm/data/TpsStatus.h"
 
@@ -27,18 +29,25 @@ bool Entry::enable() {
     gmlib::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "en_US", en_US);
     gmlib::I18nAPI::updateOrCreateLanguageFile(getSelf().getLangDir(), "zh_CN", zh_CN);
     gmlib::I18nAPI::loadLanguagesFromDirectory(getSelf().getLangDir());
+    gmlib::I18nAPI::chooseLanguage(Cleaner::Entry::getInstance().getConfig().language);
     Cleaner::ListenEvents();
     RegisterCommands();
     Cleaner::loadCleaner();
     getSelf().getLogger().info("Cleaner Loaded!");
     getSelf().getLogger().info("Author: GroupMountain");
     getSelf().getLogger().info("Repository: https://github.com/GroupMountain/Cleaner");
+
     return true;
 }
 
 bool Entry::disable() {
     mConfig.reset();
     Cleaner::unloadCleaner();
+    return true;
+}
+
+bool Entry::unload() {
+
     return true;
 }
 

@@ -1,6 +1,9 @@
 #pragma once
 #include "Global.h"
 
+#include <gmlib/mc/world/actor/UnloadedActor.h>
+extern void MainForm(Player* player);
+
 using namespace ll::chrono_literals;
 
 namespace Cleaner {
@@ -17,6 +20,7 @@ extern void CleanTask();
 extern void reloadCleaner();
 extern void loadCleaner();
 extern void unloadCleaner();
+extern bool shouldIgnore(gmlib::GMActor* ac);
 
 extern bool isMatch(std::string& A, std::string& B);
 

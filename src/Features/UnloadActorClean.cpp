@@ -5,7 +5,8 @@
 namespace UnloadActorClean {
 void cleanUnloadActor() {
     auto& config = Cleaner::Entry::getInstance().getConfig();
-    gmlib::UnloadedActor::foreachUnloadedActor(
+    std::thread([config]() {
+        gmlib::UnloadedActor::foreachUnloadedActor(
         [config](gmlib::UnloadedActor& actor) -> bool {
             for (auto& actorname : config.UnloadActorClean.CleanList) {
                 if (actor.getTypeName() == actorname) {
@@ -15,5 +16,6 @@ void cleanUnloadActor() {
             return true;
         }
     );
+    }).detach();
 }
 } // namespace UnloadActorClean
