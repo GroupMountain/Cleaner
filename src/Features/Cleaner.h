@@ -3,6 +3,7 @@
 
 #include <gmlib/mc/world/actor/UnloadedActor.h>
 extern void MainForm(Player* player);
+extern void updateUnloadEntityMap(std::vector<std::string> CleanList={}, bool skipCheck=false);
 
 using namespace ll::chrono_literals;
 
@@ -20,7 +21,6 @@ extern void CleanTask();
 extern void reloadCleaner();
 extern void loadCleaner();
 extern void unloadCleaner();
-extern bool shouldIgnore(gmlib::GMActor* ac);
 
 extern bool isMatch(std::string& A, std::string& B);
 

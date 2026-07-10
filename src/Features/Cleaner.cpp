@@ -4,9 +4,13 @@ namespace Cleaner {
 
 void loadCleaner() {
     auto& config = Cleaner::Entry::getInstance().getConfig();
-    if(config.UnloadActorClean.Enabled){
-        UnloadActorClean::cleanUnloadActor();
-    }
+
+    //Clean Unload Actor when load unload actor list.
+    updateUnloadEntityMap(
+        config.UnloadActorClean.Enabled?
+        config.UnloadActorClean.CleanList:
+        std::vector<std::string>{},true);
+
     if (config.ScheduleClean.Enabled) {
         Cleaner::AutoCleanTask(config.ScheduleClean.CleanInterval);
     }

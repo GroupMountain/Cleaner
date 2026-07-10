@@ -9,16 +9,28 @@ if not has_config("vs_runtime") then
 end
 
 -- Option 1: Use the latest version of LeviLamina released on GitHub.
-add_requires("levilamina 26.10.5", {configs = {target_type = "server"}})
+add_requires("levilamina 26.20.0", {configs = {target_type = "server"}})
 add_requires("levibuildscript")
-add_requires("gmlib 26.10.0")
-add_requires("ilistenattentively 0.12.0")
+add_requires("gmlib 26.20.0")
+add_requires("ilistenattentively 0.13.0")
 
 target("Cleaner") -- Change this to your mod name.
+    set_exceptions("none") -- To avoid conflicts with /EHa.
+    add_cxflags( "/EHa", "/utf-8", "/W4", "/w44265", "/w44289", "/w44296", "/w45263", "/w44738", "/w45204")
     add_cxflags(
-        "/EHa",
-        "/utf-8"
+        "/EHs",
+        "-Wno-microsoft-cast",
+        "-Wno-invalid-offsetof",
+        "-Wno-c++2b-extensions",
+        "-Wno-microsoft-include",
+        "-Wno-overloaded-virtual",
+        "-Wno-ignored-qualifiers",
+        "-Wno-missing-field-initializers",
+        "-Wno-potentially-evaluated-expression",
+        "-Wno-pragma-system-header-outside-header",
+        {tools = {"clang_cl"}}
     )
+    set_toolchains("clang-cl")
     add_files(
         "src/**.cpp"
     )
@@ -49,6 +61,9 @@ target("Cleaner") -- Change this to your mod name.
             modName = target:name(),
             modFile = path.filename(target:targetfile()),
         }
-        
+
         mod_packer.pack_mod(target,mod_define)
+        --local dst = "D:\\testserver\\26\\plugins\\cleaner"
+        --os.cp(target:targetfile(), dst)
+        --print("[Mod Copier] copied" .. target:filename() .. " to " .. dst)
     end)
