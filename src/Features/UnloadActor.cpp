@@ -29,27 +29,23 @@ struct OfflineEntityData {
 } OfflineEntity;
 
 
-
-
-
 void updateUnloadEntityMap(std::vector<std::string> CleanList, bool skipCheck) {
     OfflineEntity.isUpdating.store(true);
     if ((OfflineEntity.requireUpdate || skipCheck)) {
         std::thread([CleanList]() {
             UnloadEntityMap offlineEntityMap{};
-            gmlib::UnloadedActor::foreachUnloadedActor(
-                [&](gmlib::UnloadedActor& actor) -> bool {
-                    if (!actor.getTypeName().empty() && actor.getTypeName() != "minecraft:player") {
-                        if (std::ranges::find_if(CleanList, [&](auto& x) { return x == actor.getTypeName(); }) != CleanList.end()) {
-                            actor.remove();
-                            return true;
-                        }
-                        offlineEntityMap[actor.getTypeName()].emplace_back(std::move(actor));
+            gmlib::UnloadedActor::foreachUnloadedActor([&](gmlib::UnloadedActor& actor) -> bool {
+                if (!actor.getTypeName().empty() && actor.getTypeName() != "minecraft:player") {
+                    if (std::ranges::find_if(CleanList, [&](auto& x) { return x == actor.getTypeName(); })
+                        != CleanList.end()) {
+                        actor.remove();
+                        return true;
                     }
-                    return true;
+                    offlineEntityMap[actor.getTypeName()].emplace_back(std::move(actor));
                 }
-            );
-            
+                return true;
+            });
+
             {
                 std::lock_guard<std::mutex> lock(OfflineEntity.offlineEntitiesMutex);
                 for (auto& playerID : OfflineEntity.waitedPlayers) {

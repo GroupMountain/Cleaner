@@ -3,7 +3,7 @@
 
 #include <gmlib/mc/world/actor/UnloadedActor.h>
 extern void MainForm(Player* player);
-extern void updateUnloadEntityMap(std::vector<std::string> CleanList={}, bool skipCheck=false);
+extern void updateUnloadEntityMap(std::vector<std::string> CleanList = {}, bool skipCheck = false);
 
 using namespace ll::chrono_literals;
 

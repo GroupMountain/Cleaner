@@ -1,10 +1,10 @@
 #include "Features/Cleaner.h"
-#include "gmlib/mc/world/Level.h"
 #include "gmlib/gm/data/TpsStatus.h"
+#include "gmlib/mc/world/Level.h"
 #include "mc/server/commands/CommandOutput.h"
 struct CleanerParam {
     enum class Despawn { despawn } despawn;
-    enum class Action { gui ,tps, clean, reload, mspt } action;
+    enum class Action { gui, tps, clean, reload, mspt } action;
     enum class DespawnTime { despawntime } despawntime;
     int                    ticks;
     CommandSelector<Actor> entity;
@@ -70,8 +70,7 @@ void RegCleanerCommand() {
                 return output.success(tr("cleaner.output.reload"));
             }
             case CleanerParam::Action::gui:
-                if (origin.getOriginType()==CommandOriginType::Player)
-                    MainForm((Player*)origin.getEntity());
+                if (origin.getOriginType() == CommandOriginType::Player) MainForm((Player*)origin.getEntity());
                 break;
             }
         }

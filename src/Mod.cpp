@@ -2,11 +2,11 @@
 #include "Features/Cleaner.h"
 #include "Global.h"
 #include "Language.h"
-#include "ll/api/utils/ErrorUtils.h"
-#include "ll/api/memory/Hook.h"
-#include "mc/world/actor/Actor.h"
-#include "gmlib/mc/locale/I18nAPI.h"
 #include "gmlib/gm/data/TpsStatus.h"
+#include "gmlib/mc/locale/I18nAPI.h"
+#include "ll/api/memory/Hook.h"
+#include "ll/api/utils/ErrorUtils.h"
+#include "mc/world/actor/Actor.h"
 
 namespace Cleaner {
 
@@ -46,10 +46,7 @@ bool Entry::disable() {
     return true;
 }
 
-bool Entry::unload() {
-
-    return true;
-}
+bool Entry::unload() { return true; }
 
 Config& Entry::getConfig() { return mConfig.value(); }
 
