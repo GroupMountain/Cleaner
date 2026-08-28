@@ -59,9 +59,8 @@ void updateUnloadEntityMap(std::vector<std::string> CleanList, bool skipCheck) {
                 }
                 OfflineEntity.offlineEntities.swap(offlineEntityMap);
             }
-            
             OfflineEntity.lastUpdate = std::chrono::system_clock::now();
-            OfflineEntity.isUpdating.store(false);
         }).detach();
     }
+    OfflineEntity.isUpdating.store(false);
 }
