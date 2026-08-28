@@ -9,9 +9,9 @@ if not has_config("vs_runtime") then
 end
 
 -- Option 1: Use the latest version of LeviLamina released on GitHub.
-add_requires("levilamina 26.20.0", {configs = {target_type = "server"}})
+add_requires("levilamina-lib 26.20.7", {configs = {target_type = "server"}})
 add_requires("levibuildscript")
-add_requires("gmlib 26.20.0")
+add_requires("gmlib 26.20.1")
 add_requires("ilistenattentively 0.13.0")
 
 target("Cleaner") -- Change this to your mod name.
@@ -38,7 +38,7 @@ target("Cleaner") -- Change this to your mod name.
         "src"
     )
     add_packages(
-        "levilamina",
+        "levilamina-lib",
         "gmlib",
         "ilistenattentively"
     )
@@ -51,7 +51,7 @@ target("Cleaner") -- Change this to your mod name.
     add_rules("@levibuildscript/linkrule")
     set_exceptions("none")
     set_kind("shared")
-    set_languages("cxx20")
+    set_languages("cxx23")
     set_symbols("debug")
 
     after_build(function (target)
