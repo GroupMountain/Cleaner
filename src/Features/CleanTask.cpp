@@ -25,7 +25,7 @@ void CleanTask() {
         Helper::broadcastMessage(tr("cleaner.output.count1", {S(time_1.count())}));
     }
     if (config.Basic.SendToast) {
-        Helper::broadcastToast(tr("cleaner.output.count2", {S(announce_time)}));
+        Helper::broadcastToast(tr("cleaner.output.count1", {S(time_1.count())}));
     }
     ll::coro::keepThis([announce_time, &config, time_2]() -> ll::coro::CoroTask<> {
         co_await time_2;

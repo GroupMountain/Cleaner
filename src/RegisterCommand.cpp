@@ -29,7 +29,7 @@ void RegCleanerCommand() {
                  *That may cause other plugins crash,causing Levilamina crash
                  *if (en->hasCategory(ActorCategory::Player)) {
                     auto pl=(Player*)en;
-                    pl->disconnect("You've been despawn by Cleaner");
+                    pl->disconnect("You've been despawned by Cleaner");
                     continue;
                 }*/
                 en->despawn();
