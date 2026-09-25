@@ -1,6 +1,9 @@
 #include "Cleaner.h"
 #include "gmlib/mc/world/Level.h"
 #include "gmlib/mc/world/actor/Player.h"
+#include  "ila/event/world/SpawnItemActorEvent.h"
+#include  "ila/event/world/actor/ActorPickupItemEvent.h"
+
 namespace Cleaner {
 void setShouldIgnore(gmlib::GMActor* ac) { ac->addTag("cleaner:ignore"); }
 

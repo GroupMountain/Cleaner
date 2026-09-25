@@ -57,7 +57,7 @@ bool shouldClean(
     }
     if (checkEffectArrow && actor->mEntityContext->tryGetComponent<ActorTypeComponent>()->mType == ActorType::Arrow) {
         if (auto arrow = (Arrow*)actor) {
-            if (arrow->getAuxValue() != 0) {
+            if (arrow->mEntityData->getInt8(18) != 0) {
                 return false;
             }
         }
