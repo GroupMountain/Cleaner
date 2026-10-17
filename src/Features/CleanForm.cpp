@@ -8,7 +8,13 @@
 #include "mc/common/Globals.h"
 #include "mc/world/level/Level.h"
 #include "mc/world/level/storage/DBStorage.h"
+#include "mc/world/level/storage/db_helpers/Category.h"
+#include "mc/deps/nbt/CompoundTag.h"
+#include "mc/deps/nbt/ListTag.h"
+#include "mc/deps/nbt/StringTag.h"
 #include <gmlib/mc/world/CompoundTag.h>
+#include <gmlib/mc/world/Level.h>
+#include <gmlib/mc/world/Scoreboard.h>
 #include <gmlib/mc/world/actor/UnloadedActor.h>
 #include <ll/api/form/CustomForm.h>
 #include <ll/api/form/ModalForm.h>
@@ -18,23 +24,19 @@
 #include <mc/world/actor/provider/SynchedActorDataAccess.h>
 
 #include <algorithm>
+#include <cstring>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 using namespace std::ranges;
 using namespace ll::ui;
-extern struct OfflineEntityData {
-    std::chrono::system_clock::time_point                              lastUpdate;
-    std::atomic_bool                                                   isUpdating;
-    std::unordered_map<std::string, std::vector<gmlib::UnloadedActor>> offlineEntities;
-    ll::SmallDenseSet<ActorUniqueID>                                   waitedPlayers;
-    std::atomic_bool                                                   requireUpdate;
-    std::mutex                                                         offlineEntitiesMutex;
-} OfflineEntity;
 
+
+//online clean
 bool shouldClean(
     gmlib::GMActor* actor,
     bool            checkTamed,
@@ -81,64 +83,216 @@ bool shouldClean(
     return true;
 }
 
-bool shouldCleanUnload(
-    const gmlib::UnloadedActor& actor,
-    bool                        checkTamed,
-    bool                        checkTrusting,
-    bool                        checkCustomName,
-    bool                        checkTag,
-    bool                        checkItemAge,
-    bool                        checkItemType,
-    bool                        checkEffectArrow
-) {
-    auto nbt = actor.getNbt();
-    if (!nbt) return false;
 
+
+// safety remove
+static void removeUnloadActor(ActorUniqueID id, int64_t storageKey) {
+    gmlib::GMScoreboard::getInstance()->resetScore(id);
+    if (auto actor = ll::service::bedrock::getLevel()->fetchEntity(id, false)) {
+        actor->remove();
+        return;
+    }
+    auto keyStr = "actorprefix" + std::string(reinterpret_cast<const char*>(&storageKey), 8);
+    gmlib::GMLevel::getInstance()->getDBStorage().deleteData(keyStr, DBHelpers::Category::Actor);
+}
+
+// simple check
+static bool shouldCleanUnloadBrief(
+    const UnloadedEntityBrief& brief,
+    std::string_view           typeName,
+    bool                       checkTamed,
+    bool                       checkTrusting,
+    bool                       checkCustomName,
+    bool                       checkTag,
+    bool                       checkItemAge,
+    bool                       checkItemType,
+    bool                       checkEffectArrow
+) {
+    auto& cfg = Cleaner::Entry::getInstance().getConfig();
+
+    if (checkTamed && brief.isTamed) return false;
+    if (checkTrusting && brief.isTrusting) return false;
+    if (checkCustomName && brief.customNameVisible) return false;
+
+    if (checkEffectArrow && typeName == "minecraft:arrow" && brief.arrowAux != 0) return false;
+
+    if (checkTag) {
+        for (auto& t : brief.tags) {
+            if (t == "cleaner:ignore") return false;
+            if (any_of(cfg.IgnoreTags, [&](auto& kt) { return t == kt; })) return false;
+        }
+    }
+
+    if (typeName == "minecraft:item") {
+        if (checkItemAge && brief.hasItemAge && brief.itemAge <= cfg.CleanItem.ExistTicks) return false;
+        if (checkItemType && brief.hasItemName) {
+            for (auto& key : cfg.CleanItem.Whitelist) {
+                if (Cleaner::isMatch(brief.itemName, key)) return false;
+            }
+        }
+    }
+    return true;
+}
+
+// 2ed auth
+static bool shouldCleanUnloadFromNbt(
+    CompoundTag const& nbt,
+    std::string_view   typeName,
+    bool               checkTamed,
+    bool               checkTrusting,
+    bool               checkCustomName,
+    bool               checkTag,
+    bool               checkItemAge,
+    bool               checkItemType,
+    bool               checkEffectArrow
+) {
     auto& cfg = Cleaner::Entry::getInstance().getConfig();
 
     auto getByte = [&](std::string_view key) -> char {
-        return nbt->contains(key) ? nbt->at(key).get<ByteTag>().data : 0;
+        return nbt.contains(key) ? nbt.at(key).get<ByteTag>().data : 0;
     };
     if (checkTamed && getByte("IsTamed")) return false;
     if (checkTrusting && getByte("IsTrusting")) return false;
     if (checkCustomName && getByte("CustomNameVisible")) return false;
-    if (checkEffectArrow && actor.getTypeName() == "minecraft:arrow") {
-        auto& auxValue = nbt->at("auxValue");
-        if (auxValue) {
-            if (auto& aux = auxValue.get<ByteTag>()) {
-                if (aux.data != 0) {
-                    return false;
-                }
-            }
+
+    if (checkEffectArrow && typeName == "minecraft:arrow" && nbt.contains("auxValue")) {
+        auto& auxValue = nbt.at("auxValue");
+        if (auto& aux = auxValue.get<ByteTag>()) {
+            if (aux.data != 0) return false;
         }
     }
 
-    if (checkTag && nbt->contains("Tags")) {
-        auto& tags = nbt->at("Tags").get<ListTag>();
-        for (auto& t : tags | views::filter([](auto& v) { return v->as<StringTag>().data() != nullptr; })) {
-            auto tag = t->as<StringTag>().data();
+    if (checkTag && nbt.contains("Tags")) {
+        auto& tags = nbt.at("Tags").get<ListTag>();
+        for (auto& t : tags) {
+            auto d = t->as<StringTag>().data();
+            if (d == nullptr) continue;
+            std::string tag = d;
             if (tag == "cleaner:ignore" || any_of(cfg.IgnoreTags, [&](auto& kt) { return tag == kt; })) return false;
         }
     }
 
-    if (actor.getTypeName() == "minecraft:item") {
-        if (checkItemAge && nbt->contains("Age") && nbt->at("Age").get<ShortTag>().data <= cfg.CleanItem.ExistTicks)
+    if (typeName == "minecraft:item") {
+        if (checkItemAge && nbt.contains("Age") && nbt.at("Age").get<ShortTag>().data <= cfg.CleanItem.ExistTicks)
             return false;
-        if (checkItemType && nbt->contains("Item")) {
-            auto& itemNbt = nbt->at("Item").get<CompoundTag>();
+        if (checkItemType && nbt.contains("Item")) {
+            auto& itemNbt = nbt.at("Item").get<CompoundTag>();
             if (itemNbt.contains("Name")) {
-                std::string itemType  = itemNbt.at("Name").get<StringTag>().data();
-                auto        whitelist = cfg.CleanItem.Whitelist;
-                for (auto& key : whitelist) {
-                    if (Cleaner::isMatch(itemType, key)) {
-                        return false;
-                    }
+                std::string itemType = itemNbt.at("Name").get<StringTag>().data();
+                for (auto& key : cfg.CleanItem.Whitelist) {
+                    if (Cleaner::isMatch(itemType, key)) return false;
                 }
             }
         }
     }
     return true;
 }
+
+// recheck function
+static bool recheckAndRemoveUnloadedEntity(
+    int64_t          storageKey,
+    std::string_view expectedType,
+    bool             checkTamed,
+    bool             checkTrusting,
+    bool             checkCustomName,
+    bool             checkTag,
+    bool             checkItemAge,
+    bool             checkItemType,
+    bool             checkEffectArrow
+) {
+    auto& storage = gmlib::GMLevel::getInstance()->getDBStorage();
+    auto  keyStr  = "actorprefix" + std::string(reinterpret_cast<const char*>(&storageKey), 8);
+
+    if (!storage.hasKey(keyStr, DBHelpers::Category::Actor)) return false;
+
+    std::string data;
+    if (!storage.loadData(keyStr, data, DBHelpers::Category::Actor)) return false;
+
+    auto nbtOpt = CompoundTag::fromBinaryNbt(data);
+    if (!nbtOpt) return false;
+    auto& nbt = *nbtOpt;
+    if (!nbt.contains("UniqueID")) return false;
+
+    std::string typeName = "unknown";
+    if (nbt.contains("identifier")) {
+        typeName = static_cast<std::string>(nbt["identifier"].get<StringTag>());
+    }
+
+    if (!expectedType.empty() && typeName != expectedType) return true;
+
+    if (!shouldCleanUnloadFromNbt(
+            nbt,
+            typeName,
+            checkTamed,
+            checkTrusting,
+            checkCustomName,
+            checkTag,
+            checkItemAge,
+            checkItemType,
+            checkEffectArrow
+        ))
+        return true;
+
+    // pass&delete
+    ActorUniqueID id(nbt["UniqueID"]);
+    removeUnloadActor(id, storageKey);
+    return false;
+}
+
+// new clean function
+void cleanUnloadedEntitiesOfType(
+    std::string const& typeName,
+    bool               checkTamed,
+    bool               checkTrusting,
+    bool               checkCustomName,
+    bool               checkTag,
+    bool               checkItemAge,
+    bool               checkItemType,
+    bool               checkEffectArrow
+) {
+    std::lock_guard<std::mutex> lock(OfflineEntity.offlineEntitiesMutex);
+
+    auto it = OfflineEntity.offlineEntities.find(typeName);
+    if (it == OfflineEntity.offlineEntities.end()) return;
+
+    auto&                            vec = it->second;
+    std::vector<UnloadedEntityBrief> remain;
+    remain.reserve(vec.size());
+
+    for (auto& b : vec) {
+        if (!shouldCleanUnloadBrief(
+                b,
+                typeName,
+                checkTamed,
+                checkTrusting,
+                checkCustomName,
+                checkTag,
+                checkItemAge,
+                checkItemType,
+                checkEffectArrow
+            )) {
+            remain.emplace_back(std::move(b));
+            continue;
+        }
+
+        if (recheckAndRemoveUnloadedEntity(
+                b.storageKey,
+                typeName,
+                checkTamed,
+                checkTrusting,
+                checkCustomName,
+                checkTag,
+                checkItemAge,
+                checkItemType,
+                checkEffectArrow
+            )) {
+            remain.emplace_back(std::move(b));
+        }
+    }
+
+    vec.swap(remain);
+}
+
 
 bool notCooldown() { return OfflineEntity.lastUpdate + std::chrono::minutes(10) >= std::chrono::system_clock::now(); }
 
@@ -159,16 +313,6 @@ auto getAllEntityTypes() {
     return ids;
 }
 
-
-/*
-* auto getAllEntityTypes() {
-    return to<ll::SmallDenseSet<std::string>>(
-        ll::service::getLevel()->getRuntimeActorList()
-        | views::transform(&Actor::getTypeName)
-    );
-}
- */
-
 auto getEntityCountByType(std::string_view typeName) {
     return count_if(ll::service::getLevel()->getRuntimeActorList(), [&](const Actor* a) {
         return a && a->getTypeName() == typeName;
@@ -188,7 +332,6 @@ void ConfirmForm(
     bool             checkEffectArrow
 ) {
     std::string typeNameStr(TypeName);
-
 
     auto fm = ll::form::ModalForm(
         tr("cleaner.form.confirm.title"),
@@ -237,30 +380,18 @@ void ConfirmForm(
                 }
             }
         } else {
+            // 离线清理：初筛 + 按 key 重新读当前 NBT 二次校验，防止误删
             std::thread([=]() {
-                {
-                    std::lock_guard<std::mutex>       lock(OfflineEntity.offlineEntitiesMutex);
-                    std::vector<gmlib::UnloadedActor> unloadActors;
-                    auto                              it = OfflineEntity.offlineEntities.find(typeNameStr);
-                    if (it != OfflineEntity.offlineEntities.end()) {
-                        for (auto& en : it->second) {
-                            if (en.isValid()
-                                && (shouldCleanUnload(
-                                    en,
-                                    checkTamed,
-                                    checkTrusting,
-                                    checkCustomName,
-                                    checkTag,
-                                    checkItemAge,
-                                    checkItemType,
-                                    checkEffectArrow
-                                )))
-                                en.remove();
-                            else unloadActors.emplace_back(std::move(en));
-                        }
-                        OfflineEntity.offlineEntities[it->first].swap(unloadActors);
-                    }
-                }
+                cleanUnloadedEntitiesOfType(
+                    typeNameStr,
+                    checkTamed,
+                    checkTrusting,
+                    checkCustomName,
+                    checkTag,
+                    checkItemAge,
+                    checkItemType,
+                    checkEffectArrow
+                );
             }).detach();
         }
     });
@@ -357,7 +488,7 @@ void OnlineEntityForm(Player& player) {
 
     auto const subscription = keyword.subscribe([statesPtr](std::string const& kw) {
         std::string lowerKw = kw;
-        std::transform(lowerKw.begin(), lowerKw.end(), lowerKw.begin(), ::tolower);
+        transform(lowerKw.begin(), lowerKw.end(), lowerKw.begin(), ::tolower);
         for (auto& bs : *statesPtr) {
             if (lowerKw.empty()) {
                 bs.visible->setData(true);
@@ -365,8 +496,8 @@ void OnlineEntityForm(Player& player) {
             }
             std::string lowerTitle  = bs.type;
             std::string lowerTitle1 = tr(typeNameToLocString(bs.type));
-            std::transform(lowerTitle.begin(), lowerTitle.end(), lowerTitle.begin(), ::tolower);
-            std::transform(lowerTitle1.begin(), lowerTitle1.end(), lowerTitle1.begin(), ::tolower);
+            transform(lowerTitle.begin(), lowerTitle.end(), lowerTitle.begin(), ::tolower);
+            transform(lowerTitle1.begin(), lowerTitle1.end(), lowerTitle1.begin(), ::tolower);
             bs.visible->setData(
                 lowerTitle.find(lowerKw) != std::string::npos || lowerTitle1.find(lowerKw) != std::string::npos
             );
@@ -380,16 +511,12 @@ void OnlineEntityForm(Player& player) {
     formPtr->textField(tr("cleaner.form.common.search"), keyword);
     formPtr->spacer();
 
-
     for (auto& bs : *statesPtr) {
         std::string type = bs.type;
         formPtr->button(
             tr("cleaner.form.common.button", {tr(typeNameToLocString(bs.type)), S(getEntityCountByType(bs.type))}),
             [formPtr, playerUuid = player.getUuid(), type]() {
-                // 第一步：关闭当前表单
                 formPtr->close();
-
-                // 第二步：打开新表单（检查玩家是否在线）
                 if (auto* pl = ll::service::getLevel()->getPlayer(playerUuid)) SettingCleanForm(*pl, true, type);
             },
             {.visible = *bs.visible}
@@ -401,11 +528,8 @@ void OnlineEntityForm(Player& player) {
     }
 }
 
-
 void OfflineEntityForm(Player& player) {
-    if (notCooldown() && !OfflineEntity.isUpdating) {
-        updateUnloadEntityMap({}, false);
-    }
+
     ObservableString keyword{"", {.clientWritable = true}};
 
     struct ButtonStateUnload {
@@ -418,10 +542,9 @@ void OfflineEntityForm(Player& player) {
     auto statesPtr   = std::make_shared<std::vector<ButtonStateUnload>>();
     statesPtr->reserve(entityTypes.size());
 
-
     auto const subscription = keyword.subscribe([statesPtr](std::string const& kw) {
         std::string lowerKw = kw;
-        std::transform(lowerKw.begin(), lowerKw.end(), lowerKw.begin(), ::tolower);
+        transform(lowerKw, lowerKw.begin(), ::tolower);
         for (auto& bs : *statesPtr) {
             if (lowerKw.empty()) {
                 bs.visible->setData(true);
@@ -429,8 +552,8 @@ void OfflineEntityForm(Player& player) {
             }
             std::string lowerTitle  = bs.type;
             std::string lowerTitle1 = tr(typeNameToLocString(bs.type));
-            std::transform(lowerTitle.begin(), lowerTitle.end(), lowerTitle.begin(), ::tolower);
-            std::transform(lowerTitle1.begin(), lowerTitle1.end(), lowerTitle1.begin(), ::tolower);
+            transform(lowerTitle.begin(), lowerTitle.end(), lowerTitle.begin(), ::tolower);
+            transform(lowerTitle1.begin(), lowerTitle1.end(), lowerTitle1.begin(), ::tolower);
             bs.visible->setData(
                 lowerTitle.find(lowerKw) != std::string::npos || lowerTitle1.find(lowerKw) != std::string::npos
             );
@@ -482,7 +605,7 @@ void OfflineEntityForm(Player& player) {
 
     {
         std::lock_guard                             lock(OfflineEntity.offlineEntitiesMutex);
-        const auto&                                 entities = OfflineEntity.offlineEntities; // unordered_map
+        const auto&                                 entities = OfflineEntity.offlineEntities;
         std::vector<std::pair<std::string, size_t>> counts;
         counts.reserve(entities.size());
         for (const auto& [name, vec] : entities) {

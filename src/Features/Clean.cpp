@@ -3,7 +3,7 @@
 #include "gmlib/mc/world/actor/Actor.h"
 namespace Cleaner {
 
-bool isMatch(std::string& A, std::string& B) {
+bool isMatch(const std::string& A,const std::string& B) {
     // 如果B是正则表达式
     if (B.find_first_of(".*+?()[]{}|^$") != std::string::npos) {
         try {

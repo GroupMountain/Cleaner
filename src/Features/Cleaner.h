@@ -2,10 +2,63 @@
 #include "Global.h"
 
 #include <gmlib/mc/world/actor/UnloadedActor.h>
+#include <mc/deps/nbt/CompoundTag.h>
+#include <ll/api/base/Containers.h>
+
+#include <atomic>
+#include <chrono>
+#include <mutex>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 extern void MainForm(Player* player);
 extern void updateUnloadEntityMap(std::vector<std::string> CleanList = {}, bool skipCheck = false);
 
 using namespace ll::chrono_literals;
+
+// ---------------------------------------------------------------------------
+// 离线实体轻量摘要：不持有 NBT，只保留清理判断需要的字段
+// 定义为“只在头文件里出现一次”，两个 cpp 共享
+// ---------------------------------------------------------------------------
+struct UnloadedEntityBrief {
+    ActorUniqueID            id{};
+    int64_t                  storageKey{};
+    std::vector<std::string> tags{};
+    std::string              itemName{};
+    int16_t                  itemAge{0};
+    int8_t                   arrowAux{0};
+    bool                     isTamed{false};
+    bool                     isTrusting{false};
+    bool                     customNameVisible{false};
+    bool                     hasItemAge{false};
+    bool                     hasItemName{false};
+};
+
+using BriefMap = std::unordered_map<std::string, std::vector<UnloadedEntityBrief>>;
+
+// 全局状态：定义在 UnloadActor.cpp
+struct OfflineEntityData {
+    std::chrono::system_clock::time_point lastUpdate{};
+    std::atomic_bool                      isUpdating{false};
+    BriefMap                              offlineEntities{};
+    ll::SmallDenseSet<ActorUniqueID>      waitedPlayers{};
+    std::atomic_bool                      requireUpdate{false};
+    std::mutex                            offlineEntitiesMutex;
+};
+extern OfflineEntityData OfflineEntity;
+
+// 供其他 TU 调用的离线清理入口（定义在 CleanForm.cpp）
+extern void cleanUnloadedEntitiesOfType(
+    std::string const& typeName,
+    bool               checkTamed,
+    bool               checkTrusting,
+    bool               checkCustomName,
+    bool               checkTag,
+    bool               checkItemAge,
+    bool               checkItemType,
+    bool               checkEffectArrow
+);
 
 namespace Cleaner {
 
@@ -22,7 +75,7 @@ extern void reloadCleaner();
 extern void loadCleaner();
 extern void unloadCleaner();
 
-extern bool isMatch(std::string& A, std::string& B);
+extern bool isMatch(const std::string& A, const std::string& B);
 
 } // namespace Cleaner
 
