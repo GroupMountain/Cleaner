@@ -380,8 +380,7 @@ void ConfirmForm(
                 }
             }
         } else {
-            // 离线清理：初筛 + 按 key 重新读当前 NBT 二次校验，防止误删
-            std::thread([=]() {
+            std::thread([=] {
                 cleanUnloadedEntitiesOfType(
                     typeNameStr,
                     checkTamed,
@@ -406,9 +405,9 @@ void SettingCleanForm(Player& player, bool isOnline, std::string_view TypeName) 
            {tr(typeNameToLocString(typeNameStr)),
             typeNameStr,
             S(isOnline ? getEntityCountByType(typeNameStr)
-                       : (OfflineEntity.offlineEntities.contains(typeNameStr)
+                       : OfflineEntity.offlineEntities.contains(typeNameStr)
                               ? OfflineEntity.offlineEntities.at(typeNameStr).size()
-                              : 0))})
+                              : 0)})
     );
 
     const auto toggles = [&] {
@@ -515,7 +514,7 @@ void OnlineEntityForm(Player& player) {
         std::string type = bs.type;
         formPtr->button(
             tr("cleaner.form.common.button", {tr(typeNameToLocString(bs.type)), S(getEntityCountByType(bs.type))}),
-            [formPtr, playerUuid = player.getUuid(), type]() {
+            [formPtr, playerUuid = player.getUuid(), type] {
                 formPtr->close();
                 if (auto* pl = ll::service::getLevel()->getPlayer(playerUuid)) SettingCleanForm(*pl, true, type);
             },
@@ -576,12 +575,12 @@ void OfflineEntityForm(Player& player) {
             std::lock_guard lock(OfflineEntity.offlineEntitiesMutex);
             OfflineEntity.waitedPlayers.insert(player.getOrCreateUniqueID());
         }
-        form->button(tr("cleaner.form.unload.refresh"), [uuid, form]() {
+        form->button(tr("cleaner.form.unload.refresh"), [uuid, form] {
             form->close();
             if (auto* pl = ll::service::getLevel()->getPlayer(uuid)) OfflineEntityForm(*pl);
         });
     } else {
-        form->button(tr("cleaner.form.unload.refresh"), [uuid, form]() {
+        form->button(tr("cleaner.form.unload.refresh"), [uuid, form] {
             form->close();
             if (auto* pl = ll::service::getLevel()->getPlayer(uuid)) {
                 if (notCooldown()) {
@@ -624,7 +623,7 @@ void OfflineEntityForm(Player& player) {
         for (auto& bs : *statesPtr) {
             form->button(
                 tr("cleaner.form.common.button", {tr(typeNameToLocString(bs.type)), S(bs.count)}),
-                [title = bs.type, uuid, form]() {
+                [title = bs.type, uuid, form] {
                     form->close();
                     if (auto* pl = ll::service::getLevel()->getPlayer(uuid)) SettingCleanForm(*pl, false, title);
                 },

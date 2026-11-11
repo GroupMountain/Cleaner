@@ -13,7 +13,7 @@ bool isMatch(const std::string& A,const std::string& B) {
             return false;
         }
     }
-    return (A == B);
+    return A == B;
 }
 
 bool isTrust(Actor* ac) { return SynchedActorDataAccess::getActorFlag(ac->getEntityContext(), ::ActorFlags::Trusting); }
@@ -59,31 +59,31 @@ bool ShouldClean(Actor* actor) {
         return false;
     }
     // Mobs
-    else if (en->hasCategory(::ActorCategory::Mob)) {
-        if (config.CleanMobs.Enabled) {
-            auto blacklist = config.CleanMobs.BlackList;
-            for (auto& key : blacklist) {
-                if (isMatch(type, key)) {
+    else {
+        if (en->hasCategory(::ActorCategory::Mob)) {
+            if (config.CleanMobs.Enabled) {
+                auto blacklist = config.CleanMobs.BlackList;
+                for (auto& key : blacklist) {
+                    if (isMatch(type, key)) {
+                        return true;
+                    }
+                }
+                auto whitelist = config.CleanMobs.Whitelist;
+                for (auto& key : whitelist) {
+                    if (isMatch(type, key)) {
+                        return false;
+                    }
+                }
+                if (config.CleanMobs.CleanMonstors && en->hasCategory(ActorCategory::Monster)) {
+                    return true;
+                }
+                if (config.CleanMobs.CleanPeacefulMobs) {
                     return true;
                 }
             }
-            auto whitelist = config.CleanMobs.Whitelist;
-            for (auto& key : whitelist) {
-                if (isMatch(type, key)) {
-                    return false;
-                }
-            }
-            if (config.CleanMobs.CleanMonstors && en->hasCategory(ActorCategory::Monster)) {
-                return true;
-            }
-            if (config.CleanMobs.CleanPeacefulMobs) {
-                return true;
-            }
+            return false;
         }
-        return false;
-    }
-    // Others
-    else {
+        // Others
         if (config.CleanInanimate.Enabled) {
             auto blacklist = config.CleanInanimate.Blacklist;
             for (auto& key : blacklist) {

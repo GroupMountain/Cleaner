@@ -11,7 +11,7 @@ struct CleanerParam {
 };
 
 void RegCleanerCommand() {
-    auto& config = Cleaner::Entry::getInstance().getConfig();
+    const auto& config = Cleaner::Entry::getInstance().getConfig();
     auto& cmd    = ll::command::CommandRegistrar::getInstance(false).getOrCreateCommand(
         config.Basic.Command,
         tr("cleaner.command.cleaner"),
@@ -24,9 +24,7 @@ void RegCleanerCommand() {
                 return output.error(tr("cleaner.command.error.noTarget"));
             }
             for (auto en : ens) {
-                /*NO NEED
-                 *Tip: Player don't exit through normal logic when despawn player
-                 *That may cause other plugins crash,causing Levilamina crash
+                /*
                  *if (en->hasCategory(ActorCategory::Player)) {
                     auto pl=(Player*)en;
                     pl->disconnect("You've been despawned by Cleaner");

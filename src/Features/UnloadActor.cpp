@@ -99,11 +99,7 @@ static void removeUnloadActor(ActorUniqueID id, int64_t storageKey) {
     gmlib::GMLevel::getInstance()->getDBStorage().deleteData(keyStr, DBHelpers::Category::Actor);
 }
 
-// ---------------------------------------------------------------------------
-// 重建离线实体索引（轻量 Brief，不缓存 NBT）
-// ---------------------------------------------------------------------------
 void updateUnloadEntityMap(std::vector<std::string> CleanList, bool skipCheck) {
-    // 防重入：多个调用同时进来只会有第一个执行
     if (OfflineEntity.isUpdating.exchange(true)) return;
 
     if (!(OfflineEntity.requireUpdate || skipCheck)) {
@@ -133,10 +129,7 @@ void updateUnloadEntityMap(std::vector<std::string> CleanList, bool skipCheck) {
 
                     if (typeName.empty() || typeName == "minecraft:player") return;
 
-                    if (std::ranges::find(CleanList, typeName) != CleanList.end()) {
-                        removeUnloadActor(brief.id, brief.storageKey);
-                        return;
-                    }
+
 
                     newMap[typeName].emplace_back(std::move(brief));
                 }
@@ -155,5 +148,10 @@ void updateUnloadEntityMap(std::vector<std::string> CleanList, bool skipCheck) {
         } catch (...) {
         }
         OfflineEntity.isUpdating.store(false);
+        for (auto& typeId : CleanList) {
+            cleanUnloadedEntitiesOfType(typeId,false,false,
+                false,false,false,false,false);
+        }
+
     }).detach();
 }

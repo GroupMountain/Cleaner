@@ -17,10 +17,7 @@ extern void updateUnloadEntityMap(std::vector<std::string> CleanList = {}, bool 
 
 using namespace ll::chrono_literals;
 
-// ---------------------------------------------------------------------------
-// 离线实体轻量摘要：不持有 NBT，只保留清理判断需要的字段
-// 定义为“只在头文件里出现一次”，两个 cpp 共享
-// ---------------------------------------------------------------------------
+
 struct UnloadedEntityBrief {
     ActorUniqueID            id{};
     int64_t                  storageKey{};
@@ -37,7 +34,6 @@ struct UnloadedEntityBrief {
 
 using BriefMap = std::unordered_map<std::string, std::vector<UnloadedEntityBrief>>;
 
-// 全局状态：定义在 UnloadActor.cpp
 struct OfflineEntityData {
     std::chrono::system_clock::time_point lastUpdate{};
     std::atomic_bool                      isUpdating{false};
@@ -48,7 +44,6 @@ struct OfflineEntityData {
 };
 extern OfflineEntityData OfflineEntity;
 
-// 供其他 TU 调用的离线清理入口（定义在 CleanForm.cpp）
 extern void cleanUnloadedEntitiesOfType(
     std::string const& typeName,
     bool               checkTamed,

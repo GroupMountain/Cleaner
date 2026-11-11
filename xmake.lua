@@ -9,10 +9,10 @@ if not has_config("vs_runtime") then
 end
 
 -- Option 1: Use the latest version of LeviLamina released on GitHub.
-add_requires("levilamina 26.51.5", {configs = {target_type = "server"}})
+add_requires("levilamina 26.60.6", {configs = {target_type = "server"}})
 add_requires("levibuildscript")
-add_requires("gmlib 26.51.0")
-add_requires("ilistenattentively 0.17.0")
+add_requires("gmlib 26.60.0")
+add_requires("ilistenattentively 0.18.0")
 
 target("Cleaner") -- Change this to your mod name.
     set_exceptions("none") -- To avoid conflicts with /EHa.
@@ -63,7 +63,5 @@ target("Cleaner") -- Change this to your mod name.
         }
 
         mod_packer.pack_mod(target,mod_define)
-        --local dst = "D:\\testserver\\26\\plugins\\cleaner"
-        --os.cp(target:targetfile(), dst)
-        --print("[Mod Copier] copied" .. target:filename() .. " to " .. dst)
+
     end)
